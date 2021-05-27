@@ -54,6 +54,7 @@ dependencies {
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
     api("commons-collections:commons-collections:3.2.2")
+    api("org.apache.commons:commons-collections4:4.4")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.8.0")
@@ -73,11 +74,33 @@ dependencies {
     api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
     api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
     api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
-    api("org.hsqldb:hsqldb:2.5.2")
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
     api("org.xerial:sqlite-jdbc:3.34.0")
+    
+    // Database abstraction layer
+    api("org.springframework:spring-context-support:5.3.7")
+    api("org.springframework:spring-context:5.3.7")
+    api("org.springframework:spring-jdbc:5.3.7")
+    api("org.springframework:spring-orm:5.3.7")
+    api("org.springframework:spring-tx:5.3.7")
+    api("org.springframework.data:spring-data-jpa:2.5.1")
+    
+    
+    api("org.hibernate:hibernate-core:5.4.32.Final")
+    api("org.hibernate:hibernate-entitymanager:5.4.32.Final")
+    api("org.hibernate:hibernate-ehcache:5.4.32.Final")
+    
+    api("com.github.v-ladynev:fluent-hibernate-core:0.3.1")
+    api("org.hsqldb:hsqldb:2.5.2")
+    api("mysql:mysql-connector-java:8.0.25")
+    api("org.mariadb.jdbc:mariadb-java-client:2.7.3")
+    api("org.javassist:javassist:3.28.0-GA")
+    compileOnly("org.projectlombok:lombok:1.18.6")
+    
+    
+    
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
