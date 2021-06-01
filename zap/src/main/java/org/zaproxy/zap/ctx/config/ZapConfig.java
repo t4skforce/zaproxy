@@ -20,23 +20,22 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan(basePackages = "org.zaproxy")
-@EnableJpaRepositories("org.zaproxy.zap.db.repository")
+@EnableJpaRepositories("org.zaproxy.zap.db")
 @EnableTransactionManagement
 public class ZapConfig {
 
-    // TODO: Dynamically change data source -
-    // https://blog.virtual7.de/dynamically-change-data-source-connection-details-at-runtime-in-spring-boot/
     // TODO: make configurable via ZAP
-    // TODO: Add DB-Versioning via liquibase -
-    // https://www.liquibase.org/blog/3-ways-to-run-liquibase
-    // https://auth0.com/blog/integrating-spring-data-jpa-postgresql-liquibase/
     // TODO: addtional drivers for posgre, mssql, mysql, mariadb, sqlite ...
+    // TODO: Work with liquibase context initialize for new db and migration for old
+    // TODO: clean up Old Paros classes and old DB handling
+    // TODO: enable extensions to use Liquibase migration scripts and Spring
+    // Repoitories + Autowired
     @Lazy
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
-        dataSource.setUrl("jdbc:hsqldb:file:/home/username/Desktop/test_session/test.session");
+        dataSource.setUrl("jdbc:hsqldb:mem:temp");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
@@ -62,13 +61,21 @@ public class ZapConfig {
     @Bean
     public EntityManagerFactory entityManagerFactory() {
         Properties config = new Properties();
+        config.setProperty("hibernate.jdbc.time_zone", "UTC");
+        config.setProperty("hibernate.jdbc.batch_size", "1000");
+        config.setProperty("hibernate.jdbc.fetch_size", "1000");
+        config.setProperty("hibernate.order_inserts", "true");
+        config.setProperty("hibernate.order_updates", "true");
+        config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
         config.setProperty("hibernate.show_sql", "true");
-        config.setProperty("hibernate.format_sql", "true");
+        config.setProperty("hibernate.format_sql", "false");
         config.setProperty("hibernate.use_sql_comments", "true");
+        config.setProperty("hibernate.query.plan_cache_max_size", "4096");
         config.setProperty("hibernate.cache.use_second_level_cache", "true");
         config.setProperty("hibernate.cache.use_query_cache", "true");
         config.setProperty("hibernate.cache.region.factory_class",
                 "org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory");
+        config.setProperty("hibernate.cache.ehcache.missing_cache_strategy", "create");
 
         // will set the provider to 'org.hibernate.ejb.HibernatePersistence'
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -79,7 +86,7 @@ public class ZapConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("org.zaproxy.zap.db.schema");
+        factory.setPackagesToScan("org.zaproxy.zap.db");
         factory.setDataSource(dataSource());
         factory.setJpaProperties(config);
 

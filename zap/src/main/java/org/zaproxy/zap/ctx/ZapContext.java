@@ -2,10 +2,10 @@ package org.zaproxy.zap.ctx;
 
 import java.io.IOException;
 
+import org.parosproxy.paros.db.Database;
 import org.springframework.beans.BeansException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.domain.PageRequest;
-import org.zaproxy.zap.db.repository.HistoryRepository;
+import org.zaproxy.zap.db.repository.HistoryModelRepository;
 
 public class ZapContext {
 
@@ -35,12 +35,14 @@ public class ZapContext {
     }
 
     public static void main(String[] args) throws Exception {
-        HistoryRepository legacyTableHistory = getBean(HistoryRepository.class);
-        System.out.println(legacyTableHistory
-                .findAllHistoryCache(24L, "http://127.0.0.1:3000/styles.css", "GET", "", 1622009866056L,
-                        PageRequest.of(0, 1))
-                .get(0)
-                .getId());
+        Database db = getBean(Database.class);
+
+        db.open("/home/username/Desktop/test_session/test.session");
+
+        HistoryModelRepository histRepo = getBean(HistoryModelRepository.class);
+
+        histRepo.findById(1L).get().getTags().size();
+
         close();
     }
 

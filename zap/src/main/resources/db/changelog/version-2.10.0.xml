@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<databaseChangeLog  
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">  
+	
+	<changeSet id="table-history-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="HISTORY"/>
+		    </not>
+		</preConditions>
+		<!-- HISTORY Table -->
+		<createTable tableName="HISTORY">
+			<column  name="HISTORYID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="HISTTYPE" type="int" defaultValueNumeric="1" />
+            <column name="STATUSCODE" type="int" defaultValueNumeric="0" />
+            <column name="TIMESENTMILLIS" type="bigint" defaultValueNumeric="0" />
+            <column name="TIMEELAPSEDMILLIS" type="bigint" defaultValueNumeric="0" />
+            <column name="METHOD" type="varchar(1024)" defaultValue="" />
+            <column name="URI" type="varchar(1048576)" defaultValue="" />
+            <column name="REQHEADER" type="varchar(4194304)" defaultValue="" />
+            <column name="REQBODY" type="blob" defaultValue=""/> <!-- bad idea, can't search via DB query -->
+            <column name="RESHEADER" type="varchar(4194304)" defaultValue="" />
+            <column name="RESBODY" type="blob" defaultValue="" /> <!-- bad idea, can't search via DB query -->
+            <column name="TAG" type="varchar(32768)" defaultValue="" />
+            <column name="NOTE" type="varchar(1048576)" defaultValue="" />
+            <column name="RESPONSEFROMTARGETHOST" type="boolean" defaultValueBoolean="false" />
+		</createTable>
+		<createIndex indexName="HISTORY_INDEX" tableName="HISTORY">
+      		<column name="URI"/>
+      		<column name="METHOD"/>
+      		<column name="REQBODY"/>
+      		<column name="SESSIONID"/>
+      		<column name="HISTTYPE"/>
+      		<column name="HISTORYID"/>
+      		<column name="STATUSCODE"/>
+  		</createIndex>
+		<createIndex indexName="INDEX_HISTORY_HISTTYPE" tableName="HISTORY">
+			<column name="HISTTYPE"/>
+		</createIndex>
+		<createIndex indexName="INDEX_HISTORY_SESSIONID" tableName="HISTORY">
+			<column name="SESSIONID"/>
+		</createIndex>
+	</changeSet>
+	
+	<changeSet id="table-session-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SESSION"/>
+		    </not>
+		</preConditions>
+		<!-- SESSION Table -->
+		<createTable tableName="SESSION">
+			<column  name="SESSIONID" type="bigint">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONNAME" type="varchar(32768)" defaultValue="" />
+            <column name="LASTACCESS" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+				<constraints nullable="false"/>             
+            </column>
+		</createTable>
+	</changeSet>
+	
+	<changeSet id="table-alert-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="ALERT"/>
+		    </not>
+		</preConditions>
+		<!-- ALERT Table -->
+        <createTable tableName="ALERT">  
+            <column  name="ALERTID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>  
+            <column name="SCANID" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="PLUGINID" type="int" defaultValueNumeric="0" />
+            <column name="ALERT" type="varchar(16777216)" defaultValue="" />
+            <column name="RISK" type="int" defaultValueNumeric="0" />
+            <column name="RELIABILITY" type="int" defaultValueNumeric="1" />
+            <column name="DESCRIPTION" type="varchar(16777216)" defaultValue="" />
+            <column name="URI" type="varchar(1048576)" defaultValue="" />
+            <column name="PARAM" type="varchar(32768)" defaultValue="" />
+            <column name="OTHERINFO" type="varchar(16777216)" defaultValue="" />
+            <column name="SOLUTION" type="varchar(16777216)" defaultValue="" />
+            <column name="REFERENCE" type="varchar(16777216)" defaultValue="" />
+            <column name="HISTORYID" type="int" />
+            <column name="SOURCEHISTORYID" type="int" defaultValueNumeric="0" />
+            <column name="ATTACK" type="varchar(32768)" defaultValue="" />
+            <column name="EVIDENCE" type="varchar(16777216)" defaultValue="" />
+            <column name="CWEID" type="int" defaultValueNumeric="-1" />
+            <column name="WASCID" type="int" defaultValueNumeric="-1" />
+            <column name="SOURCEID" type="int" defaultValueNumeric="0" />
+            <column name="ALERTREF" type="varchar(256)" defaultValue="" />
+        </createTable>
+        <createIndex indexName="ALERT_INDEX" tableName="ALERT">
+      		<column name="SOURCEHISTORYID"/>
+  		</createIndex>
+  		<createIndex indexName="INDEX_ALERT_SOURCEID" tableName="ALERT">
+      		<column name="SOURCEID"/>
+  		</createIndex>
+  	</changeSet>
+  	
+	<changeSet id="table-scan-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SCAN"/>
+		    </not>
+		</preConditions>
+  		<!-- SCAN Table -->
+  		<createTable tableName="SCAN">
+  			<column  name="SCANID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="SCANNAME" type="varchar(32768)" defaultValue="" />
+            <column name="SCANTIME" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+				<constraints nullable="false"/>             
+            </column>
+  		</createTable>
+  	</changeSet>
+  	
+	<changeSet id="table-context_data-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="CONTEXT_DATA"/>
+		    </not>
+		</preConditions>
+  		<!-- CONTEXT_DATA Table -->
+  		<createTable tableName="CONTEXT_DATA">
+  			<column  name="DATAID" type="bigint" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="CONTEXTID" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="TYPE" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="DATA" type="varchar(1048576)" defaultValue="" />
+  		</createTable>
+  		<createIndex indexName="INDEX_CONTEXT_DATA_CONTEXTID" tableName="CONTEXT_DATA">
+      		<column name="CONTEXTID"/>
+  		</createIndex>
+  		<createIndex indexName="INDEX_CONTEXT_DATA_TYPE" tableName="CONTEXT_DATA">
+      		<column name="TYPE"/>
+  		</createIndex>
+  	</changeSet>
+  	
+	<changeSet id="table-param-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="PARAM"/>
+		    </not>
+		</preConditions>
+  		<!-- PARAM Table -->
+  		<createTable tableName="PARAM">
+  			<column  name="PARAMID" type="bigint" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SITE" type="varchar(32768)">
+            	<constraints  nullable="false"/>
+            </column>
+            <column name="TYPE" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="NAME" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="USED" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="FLAGS" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="VALS" type="varchar(8388608)">
+            	<constraints  nullable="false"/> 
+            </column>
+  		</createTable>
+  	</changeSet>
+  	
+	<changeSet id="table-session_url-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SESSION_URL"/>
+		    </not>
+		</preConditions>
+  		<!-- SESSION_URL Table -->
+  		<createTable tableName="SESSION_URL">
+  			<column  name="URLID" type="bigint" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="TYPE" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="URL" type="varchar(8192)" defaultValue="" />
+  		</createTable>
+  		<createIndex indexName="INDEX_SESSION_URL_TYPE_AND_URL" tableName="SESSION_URL">
+      		<column name="TYPE"/>
+      		<column name="URL"/>
+  		</createIndex>
+  	</changeSet>
+  	
+	<changeSet id="table-tag-2.10.0" author="t4skforce1337">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="TAG"/>
+		    </not>
+		</preConditions>
+  		<!-- TAG Table -->
+  		<createTable tableName="TAG">
+  			<column  name="TAGID" type="bigint" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="HISTORYID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="TAG" type="varchar(1024)" defaultValue="" />
+  		</createTable>
+  		<createIndex indexName="INDEX_TAG_HISTORYID_TAG" tableName="TAG">
+      		<column name="HISTORYID"/>
+      		<column name="TAG"/>
+  		</createIndex>
+    </changeSet>  
+	
+</databaseChangeLog>

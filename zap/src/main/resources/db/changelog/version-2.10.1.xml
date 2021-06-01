@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<databaseChangeLog  
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+
+	<changeSet id="history-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="HISTORY" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="HISTORY">
+			<column name="VERSION" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="session-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="SESSION" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="VERSION" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="alert-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="ALERT" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="ALERT" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="scan-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="SCAN" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="SCAN" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="context_data-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="CONTEXT_DATA" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="CONTEXT_DATA" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="param-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="PARAM" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="PARAM" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="session_url-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="SESSION_URL" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="SESSION_URL" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
+    <changeSet id="tag-add-column-version-2.10.1" author="t4skforce1337">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="TAG" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="SESSION">
+			<column name="TAG" type="bigint" />
+		</addColumn>
+    </changeSet>
+	
+</databaseChangeLog>

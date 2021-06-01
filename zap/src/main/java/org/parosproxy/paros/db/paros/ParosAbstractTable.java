@@ -29,6 +29,7 @@ package org.parosproxy.paros.db.paros;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
@@ -37,17 +38,14 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 public abstract class ParosAbstractTable implements DatabaseListener {
 
     private Connection connection = null;
-    private ParosDatabaseServer server = null;
+    private DatabaseServer server = null;
 
-    public ParosAbstractTable() {}
+    public ParosAbstractTable() {
+    }
 
     @Override
-    public void databaseOpen(DatabaseServer server)
-            throws DatabaseException, DatabaseUnsupportedException {
-        if (!(server instanceof ParosDatabaseServer)) {
-            throw new DatabaseUnsupportedException();
-        }
-        this.server = (ParosDatabaseServer) server;
+    public void databaseOpen(DatabaseServer server) throws DatabaseException, DatabaseUnsupportedException {
+        this.server = server;
         connection = null;
         reconnect(getConnection());
     }

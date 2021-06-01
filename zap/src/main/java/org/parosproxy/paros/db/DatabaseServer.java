@@ -19,11 +19,21 @@
  */
 package org.parosproxy.paros.db;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
- * A class representing a generic database server This interface was extracted from the previous
- * Paros class of the same name. The Paros class that implements this interface has been moved to
- * the 'paros' sub package and prefixed with 'Paros'
+ * A class representing a generic database server This interface was extracted
+ * from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and
+ * prefixed with 'Paros'
  *
  * @author psiinon
  */
-public interface DatabaseServer {}
+public interface DatabaseServer {
+
+    Connection getNewConnection() throws SQLException;
+
+    Connection getSingletonConnection() throws SQLException;
+
+}

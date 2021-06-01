@@ -54,24 +54,21 @@
 package org.parosproxy.paros.model;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
-import org.parosproxy.paros.db.paros.ParosDatabase;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ControlOverrides;
+import org.zaproxy.zap.ctx.ZapContext;
 import org.zaproxy.zap.db.sql.DbSQL;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
@@ -134,14 +131,12 @@ public class Model {
     public Session newSession() {
         session = new Session(this);
         // Always start with one context
-        session.saveContext(
-                session.getNewContext(Constant.messages.getString("context.default.name")));
+        session.saveContext(session.getNewContext(Constant.messages.getString("context.default.name")));
         return session;
     }
 
     /** This method should typically only be called from the Control class */
-    public void openSession(String fileName)
-            throws SQLException, SAXException, IOException, Exception {
+    public void openSession(String fileName) throws SQLException, SAXException, IOException, Exception {
         getSession().open(fileName);
     }
 
@@ -167,7 +162,8 @@ public class Model {
     /**
      * Persists the properties (e.g. name, description) of the current session.
      *
-     * <p>Should be called only by "core" classes.
+     * <p>
+     * Should be called only by "core" classes.
      *
      * @throws Exception if an error occurred while persisting the properties.
      * @since 2.7.0
@@ -194,13 +190,12 @@ public class Model {
     public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
         getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 
+        // TODO: remove experiamental switch
         if (overrides.isExperimentalDb()) {
             logger.info("Using experimental database :/");
             db = DbSQL.getSingleton().initDatabase();
         } else {
-            ParosDatabase parosDb = new ParosDatabase();
-            parosDb.setDatabaseParam(getOptionsParam().getDatabaseParam());
-            db = parosDb;
+            db = ZapContext.getBean(Database.class);
         }
 
         createAndOpenUntitledDb();
@@ -228,7 +223,8 @@ public class Model {
     /**
      * Sets the given {@code Model} as the singleton.
      *
-     * <p><strong>Note:</strong> Not part of the public API.
+     * <p>
+     * <strong>Note:</strong> Not part of the public API.
      *
      * @param testModel the {@code Model} to test with.
      */
@@ -249,34 +245,6 @@ public class Model {
         // and for Windows renaming file across different drives does not work.
 
         copySessionDb(currentDBNameUntitled, destFile);
-
-        // getDb().close();
-        //
-        // boolean result = false;
-        // File fileIn1 = new File(currentDBNameUntitled + ".data");
-        // File fileIn2 = new File(currentDBNameUntitled + ".script");
-        // File fileIn3 = new File(currentDBNameUntitled + ".properties");
-        // File fileIn4 = new File(currentDBNameUntitled + ".backup");
-        //
-        // File fileOut1 = new File(destFile + ".data");
-        // File fileOut2 = new File(destFile + ".script");
-        // File fileOut3 = new File(destFile + ".properties");
-        // File fileOut4 = new File(destFile + ".backup");
-        //
-        // if (fileOut1.exists()) fileOut1.delete();
-        // if (fileOut2.exists()) fileOut2.delete();
-        // if (fileOut3.exists()) fileOut3.delete();
-        // if (fileOut4.exists()) fileOut4.delete();
-        //
-        // result = fileIn1.renameTo(fileOut1);
-        // result = fileIn2.renameTo(fileOut2);
-        // result = fileIn3.renameTo(fileOut3);
-        // if (fileIn4.exists()) {
-        // result = fileIn4.renameTo(fileOut4);
-        // }
-        //
-        // getDb().open(destFile);
-
     }
 
     // TODO disable for non file based sessions
@@ -381,28 +349,25 @@ public class Model {
 
         // delete all untitled session db in "session" directory
         File dir = new File(getSession().getSessionFolder());
-        File[] listFile =
-                dir.listFiles(
-                        new FilenameFilter() {
-                            @Override
-                            public boolean accept(File dir1, String fileName) {
-                                if (fileName.startsWith("untitled")) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-        for (int i = 0; i < listFile.length; i++) {
-            if (!listFile[i].delete()) {
+        File[] listFile = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir1, String fileName) {
+                if (fileName.startsWith("untitled")) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        for (File element : listFile) {
+            if (!element.delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + listFile[i].getAbsolutePath());
+                logger.error("Failed to delete file " + element.getAbsolutePath());
             }
         }
 
         // ZAP: Check if files exist.
         // copy and create new template db
         currentDBNameUntitled = DBNAME_UNTITLED + DBNAME_COPY;
-        FileCopier copier = new FileCopier();
         File fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".data");
         if (fileIn.exists()) {
             File fileOut = new File(currentDBNameUntitled + ".data");
@@ -410,8 +375,6 @@ public class Model {
                 // ZAP: Log failure to delete file
                 logger.error("Failed to delete file " + fileOut.getAbsolutePath());
             }
-
-            copier.copy(fileIn, fileOut);
         }
 
         fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".properties");
@@ -421,8 +384,6 @@ public class Model {
                 // ZAP: Log failure to delete file
                 logger.error("Failed to delete file " + fileOut.getAbsolutePath());
             }
-
-            copier.copy(fileIn, fileOut);
         }
 
         fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".script");
@@ -431,17 +392,6 @@ public class Model {
             if (fileOut.exists() && !fileOut.delete()) {
                 // ZAP: Log failure to delete file
                 logger.error("Failed to delete file " + fileOut.getAbsolutePath());
-            }
-
-            copier.copy(fileIn, fileOut);
-        } else {
-            String fallbackResource = "/org/zaproxy/zap/resources/zapdb.script";
-            try (InputStream is = Model.class.getResourceAsStream(fallbackResource)) {
-                if (is == null) {
-                    throw new FileNotFoundException(
-                            "Bundled resource not found: " + fallbackResource);
-                }
-                Files.copy(is, Paths.get(currentDBNameUntitled + ".script"));
             }
         }
 
@@ -466,7 +416,8 @@ public class Model {
     }
 
     @Deprecated
-    public void addSessionListener(SessionListener listener) {}
+    public void addSessionListener(SessionListener listener) {
+    }
 
     /**
      * Adds the given context data factory to the model.
@@ -479,7 +430,7 @@ public class Model {
         if (contextDataFactory == null) {
             throw new IllegalArgumentException("Parameter contextDataFactory must not be null.");
         }
-        this.contextDataFactories.add(contextDataFactory);
+        contextDataFactories.add(contextDataFactory);
 
         if (postInitialisation) {
             for (Context context : getSession().getContexts()) {
@@ -507,14 +458,15 @@ public class Model {
      * Loads the given context, by calling all the {@link ContextDataFactory}ies.
      *
      * @param ctx the context to load.
-     * @throws IllegalArgumentException (since 2.8.0) if the given context is {@code null}.
+     * @throws IllegalArgumentException (since 2.8.0) if the given context is
+     *                                  {@code null}.
      * @see ContextDataFactory#loadContextData(Session, Context)
      * @since 2.0.0
      */
     public void loadContext(Context ctx) {
         validateContextNotNull(ctx);
 
-        for (ContextDataFactory cdf : this.contextDataFactories) {
+        for (ContextDataFactory cdf : contextDataFactories) {
             cdf.loadContextData(getSession(), ctx);
         }
     }
@@ -536,14 +488,15 @@ public class Model {
      * Saves the given context, by calling all the {@link ContextDataFactory}ies.
      *
      * @param ctx the context to save.
-     * @throws IllegalArgumentException (since 2.8.0) if the given context is {@code null}.
+     * @throws IllegalArgumentException (since 2.8.0) if the given context is
+     *                                  {@code null}.
      * @since 2.0.0
      * @see ContextDataFactory#persistContextData(Session, Context)
      */
     public void saveContext(Context ctx) {
         validateContextNotNull(ctx);
 
-        for (ContextDataFactory cdf : this.contextDataFactories) {
+        for (ContextDataFactory cdf : contextDataFactories) {
             cdf.persistContextData(getSession(), ctx);
         }
     }
@@ -551,25 +504,26 @@ public class Model {
     /**
      * Import a context from the given configuration
      *
-     * @param ctx the context to import the context data to.
+     * @param ctx    the context to import the context data to.
      * @param config the {@code Configuration} containing the context data.
-     * @throws ConfigurationException if an error occurred while reading the context data from the
-     *     {@code Configuration}.
-     * @throws IllegalArgumentException (since 2.8.0) if the given context or configuration is
-     *     {@code null}.
+     * @throws ConfigurationException   if an error occurred while reading the
+     *                                  context data from the {@code Configuration}.
+     * @throws IllegalArgumentException (since 2.8.0) if the given context or
+     *                                  configuration is {@code null}.
      * @since 2.4.0
      */
     public void importContext(Context ctx, Configuration config) throws ConfigurationException {
         validateContextNotNull(ctx);
         validateConfigNotNull(config);
 
-        for (ContextDataFactory cdf : this.contextDataFactories) {
+        for (ContextDataFactory cdf : contextDataFactories) {
             cdf.importContextData(ctx, config);
         }
     }
 
     /**
-     * Validates that the given configuration is not {@code null}, throwing an {@code
+     * Validates that the given configuration is not {@code null}, throwing an
+     * {@code
      * IllegalArgumentException} if it is.
      *
      * @param config the config to be validated.
@@ -584,16 +538,17 @@ public class Model {
     /**
      * Export a context into the given configuration
      *
-     * @param ctx the context to export.
+     * @param ctx    the context to export.
      * @param config the {@code Configuration} where to export the context data.
-     * @throws IllegalArgumentException (since 2.8.0) if the given context is {@code null}.
+     * @throws IllegalArgumentException (since 2.8.0) if the given context is
+     *                                  {@code null}.
      * @since 2.4.0
      */
     public void exportContext(Context ctx, Configuration config) {
         validateContextNotNull(ctx);
         validateConfigNotNull(config);
 
-        for (ContextDataFactory cdf : this.contextDataFactories) {
+        for (ContextDataFactory cdf : contextDataFactories) {
             cdf.exportContextData(ctx, config);
         }
     }
@@ -601,7 +556,9 @@ public class Model {
     /**
      * Notifies the model that the initialisation has been done.
      *
-     * <p><strong>Note:</strong> Should be called only by "core" code after the initialisation.
+     * <p>
+     * <strong>Note:</strong> Should be called only by "core" code after the
+     * initialisation.
      *
      * @since 2.5.0
      */
@@ -616,6 +573,6 @@ public class Model {
      * @since 2.10.0
      */
     public VariantFactory getVariantFactory() {
-        return this.variantFactory;
+        return variantFactory;
     }
 }
