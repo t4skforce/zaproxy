@@ -2,13 +2,16 @@ package org.zaproxy.zap.db.service;
 
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.AbstractDatabase;
@@ -24,7 +27,8 @@ import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.core.env.Environment;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,17 +44,7 @@ public class DatabaseService extends AbstractDatabase {
 
     private final Logger LOG = LogManager.getLogger(DatabaseService.class);
 
-    private static final String HSQLDB = "hsqldb";
-
-    private static final String HSQLDB_SHUTDOWN = "SHUTDOWN";
-
-    private static final String HSQLDB_SHUTDOWN_COMPACT = "SHUTDOWN COMPACT";
-
-    private static final String SQLITE = "sqlite";
-
-    private static final String SQLITE_VACUUM = "VACUUM";
-
-    private static final List<String> FILE_DB = Arrays.asList(HSQLDB, SQLITE);
+    private String type = "hsqldb";
 
     @Autowired
     private DatabaseServer databaseServer;
@@ -88,6 +82,12 @@ public class DatabaseService extends AbstractDatabase {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private Environment env;
+
+    @Autowired
+    private LocalContainerEntityManagerFactoryBean entityManagerFactory;
+
     @Override
     public DatabaseServer getDatabaseServer() {
         return databaseServer;
@@ -106,9 +106,38 @@ public class DatabaseService extends AbstractDatabase {
     @Override
     public void open(String path) throws ClassNotFoundException, Exception {
         try {
-            DriverManagerDataSource ds = dataSource.unwrap(DriverManagerDataSource.class);
-            ds.setUrl(String.format("jdbc:hsqldb:file:%s;hsqldb.default_table_type=cached",
-                    Paths.get(path).toAbsolutePath().toString().replaceAll("\\\\", "/")));
+            // DriverManagerDataSource ds =
+            // dataSource.unwrap(DriverManagerDataSource.class);
+            BasicDataSource ds = (BasicDataSource) dataSource;
+
+            setType("hsqldb");
+
+            Map<String, String> params = new HashedMap();
+            params.put("type", getType());
+            params.put("path", Paths.get(path).toAbsolutePath().toString().replaceAll("\\\\", "/"));
+            params.put("url", path);
+            params.put("name", path);
+
+            ds.setDriverClassName(getProperty("driver", "org.hsqldb.jdbc.JDBCDriver"));
+            ds.setUrl(getProperty("url", "file:{path};hsqldb.default_table_type=cached", params));
+            ds.setUsername(getProperty("username", "sa"));
+            ds.setPassword(getProperty("password", ""));
+
+            ds.setInitialSize(getProperty("pool.initial_size", Integer.class, 3));
+            ds.setMaxIdle(getProperty("pool.max_idle", Integer.class, 3));
+            ds.setMinIdle(getProperty("pool.min_idle", Integer.class, 0));
+            ds.setMaxTotal(getProperty("pool.max_total", Integer.class, 1));
+            ds.setMaxWaitMillis(getProperty("pool.max_wait", Integer.class, -1));
+            ds.setPoolPreparedStatements(true);
+            ds.restart();
+
+            Properties config = new Properties();
+            config.setProperty("hibernate.dialect", getProperty("dialect", "org.hibernate.dialect.HSQLDialect"));
+
+            entityManagerFactory.setJpaProperties(config);
+            entityManagerFactory.afterPropertiesSet();
+
+            LOG.info("DB connection string: {}", ds.getUrl());
 
             // Initialize Liquibase and run the update
             try (java.sql.Connection conn = dataSource.getConnection()) {
@@ -124,6 +153,30 @@ public class DatabaseService extends AbstractDatabase {
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void moveSessionDb(String destFile) throws Exception {
+        // TODO Auto-generated method stub
+        super.moveSessionDb(destFile);
+    }
+
+    @Override
+    public void copySessionDb(String currentFile, String destFile) throws Exception {
+        // TODO Auto-generated method stub
+        super.copySessionDb(currentFile, destFile);
+    }
+
+    @Override
+    public void snapshotSessionDb(String currentFile, String destFile) throws Exception {
+        // TODO Auto-generated method stub
+        super.snapshotSessionDb(currentFile, destFile);
+    }
+
+    @Override
+    public void createAndOpenUntitledDb() throws Exception {
+        // TODO Auto-generated method stub
+        super.createAndOpenUntitledDb();
     }
 
     @Override
@@ -189,15 +242,11 @@ public class DatabaseService extends AbstractDatabase {
 
     @Override
     public String getType() {
-        try {
-            String[] parts = StringUtils.split(dataSource.unwrap(DriverManagerDataSource.class).getUrl(), ':');
-            if (parts.length >= 2) {
-                return parts[1];
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "error";
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
@@ -219,16 +268,39 @@ public class DatabaseService extends AbstractDatabase {
                 tableHistory.deleteTemporary();
             }
 
-            // shutdown compact for hsqldb
-            String type = getType();
-            if (HSQLDB.equalsIgnoreCase(type)) {
-                entityManager.createNativeQuery(compact ? HSQLDB_SHUTDOWN_COMPACT : HSQLDB_SHUTDOWN).executeUpdate();
-            } else if (SQLITE.equalsIgnoreCase(type) && compact) {
-                entityManager.createNativeQuery(SQLITE_VACUUM).executeUpdate();
+            // shutdown compact
+            if (compact) {
+                Optional.ofNullable(getProperty("compact")).ifPresent(sql -> {
+                    entityManager.createNativeQuery(sql).executeUpdate();
+                });
+            } else {
+                Optional.ofNullable(getProperty("shutdown")).ifPresent(sql -> {
+                    entityManager.createNativeQuery(sql).executeUpdate();
+                });
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
+    private String getProperty(String key, Map<String, String> params) {
+        return getProperty(key, "", params);
+    }
+
+    private String getProperty(String key, String defaultValue, Map<String, String> params) {
+        return StringSubstitutor.replace(env.getProperty(String.format("db.%s.%s", getType(), key), defaultValue),
+                params, "{", "}");
+    }
+
+    private String getProperty(String key) {
+        return env.getProperty(String.format("db.%s.%s", getType(), key));
+    }
+
+    private String getProperty(String key, String defaultValue) {
+        return env.getProperty(String.format("db.%s.%s", getType(), key), defaultValue);
+    }
+
+    private <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+        return env.getProperty(String.format("db.%s.%s", getType(), key), targetType, defaultValue);
+    }
 }

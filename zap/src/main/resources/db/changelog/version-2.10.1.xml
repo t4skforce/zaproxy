@@ -6,7 +6,8 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
 
-	<changeSet id="history-add-column-version-2.10.1" author="t4skforce1337">
+	<!-- ensure column VERSION exists in all datatypes, this help with hibernate perfromance  -->
+	<changeSet id="history-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="HISTORY" columnName="VERSION"/>
@@ -17,7 +18,7 @@
 		</addColumn>
     </changeSet>
     
-    <changeSet id="session-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="session-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="SESSION" columnName="VERSION"/>
@@ -28,69 +29,69 @@
 		</addColumn>
     </changeSet>
     
-    <changeSet id="alert-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="alert-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="ALERT" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="ALERT" type="bigint" />
+		<addColumn tableName="ALERT">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
     
-    <changeSet id="scan-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="scan-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="SCAN" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="SCAN" type="bigint" />
+		<addColumn tableName="SCAN">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
     
-    <changeSet id="context_data-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="context_data-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="CONTEXT_DATA" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="CONTEXT_DATA" type="bigint" />
+		<addColumn tableName="CONTEXT_DATA">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
     
-    <changeSet id="param-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="param-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="PARAM" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="PARAM" type="bigint" />
+		<addColumn tableName="PARAM">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
     
-    <changeSet id="session_url-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="session_url-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="SESSION_URL" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="SESSION_URL" type="bigint" />
+		<addColumn tableName="SESSION_URL">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
     
-    <changeSet id="tag-add-column-version-2.10.1" author="t4skforce1337">
+    <changeSet id="tag-add-column-version-2.10.1" author="zap">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <columnExists tableName="TAG" columnName="VERSION"/>
 		    </not>
 		</preConditions>
-		<addColumn tableName="SESSION">
-			<column name="TAG" type="bigint" />
+		<addColumn tableName="TAG">
+			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
 	

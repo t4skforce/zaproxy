@@ -17,7 +17,6 @@ import org.zaproxy.zap.db.model.ContextModel;
 import org.zaproxy.zap.db.repository.ContextModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class ContextDao implements TableContext {
 
     @Autowired
@@ -29,6 +28,7 @@ public class ContextDao implements TableContext {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordContext read(long dataId) throws DatabaseException {
         return contextDataRepository.findById(dataId)
                 .map(entity -> entity.toRecord())
@@ -36,27 +36,32 @@ public class ContextDao implements TableContext {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordContext insert(int contextId, int type, String url) throws DatabaseException {
         return contextDataRepository.save(ContextModel.builder().contextId(contextId).type(type).data(url).build())
                 .toRecord();
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void delete(int contextId, int type, String data) throws DatabaseException {
         contextDataRepository.deleteByContextIdAndTypeAndData(contextId, type, data);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteAllDataForContextAndType(int contextId, int type) throws DatabaseException {
         contextDataRepository.deleteByContextIdAndType(contextId, type);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteAllDataForContext(int contextId) throws DatabaseException {
         contextDataRepository.deleteByContextId(contextId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getAllData() throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAll())
                 .stream()
@@ -65,6 +70,7 @@ public class ContextDao implements TableContext {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getDataForContext(int contextId) throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAllByContextId(contextId))
                 .stream()
@@ -73,6 +79,7 @@ public class ContextDao implements TableContext {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getDataForContextAndType(int contextId, int type) throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAllByContextIdAndType(contextId, type))
                 .stream()
@@ -81,6 +88,7 @@ public class ContextDao implements TableContext {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void setData(int contextId, int type, List<String> dataList) throws DatabaseException {
         contextDataRepository.deleteByContextIdAndType(contextId, type);
         if (CollectionUtils.isNotEmpty(dataList)) {

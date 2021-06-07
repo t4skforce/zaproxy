@@ -28,7 +28,6 @@ import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class HistoryDao implements TableHistory {
 
     @Autowired
@@ -40,6 +39,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordHistory read(int historyId) throws HttpMalformedHeaderException, DatabaseException {
         return historyRepository.findById((long) historyId)
                 .orElseThrow(() -> new DatabaseException("History entry with id" + historyId + " not found!"))
@@ -47,6 +47,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordHistory write(long sessionId, int histType, HttpMessage msg)
             throws HttpMalformedHeaderException, DatabaseException {
         HistoryModelBuilder builder = HistoryModel.builder();
@@ -79,6 +80,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIds(long sessionId) throws DatabaseException {
         return historyRepository.findIdsBySessionId(sessionId)
                 .stream()
@@ -87,6 +89,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIdsStartingAt(long sessionId, int startAtHistoryId) throws DatabaseException {
         return historyRepository.findIdsBySessionIdStartingAt(sessionId, (long) startAtHistoryId)
                 .stream()
@@ -95,6 +98,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes) throws DatabaseException {
         return historyRepository.findIdsBySessionIdAndType(sessionId, histTypes)
                 .stream()
@@ -103,6 +107,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIdsOfHistTypeStartingAt(long sessionId, int startAtHistoryId, int... histTypes)
             throws DatabaseException {
         return historyRepository.findIdsBySessionIdAndTypeStartingAt(sessionId, (long) startAtHistoryId, histTypes)
@@ -112,6 +117,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes) throws DatabaseException {
         return historyRepository.findIdsBySessionIdAndNotType(sessionId, histTypes)
                 .stream()
@@ -120,6 +126,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryIdsExceptOfHistTypeStartingAt(long sessionId, int startAtHistoryId, int... histTypes)
             throws DatabaseException {
         return historyRepository.findIdsBySessionIdAndNotTypeStartingAt(sessionId, (long) startAtHistoryId, histTypes)
@@ -130,6 +137,7 @@ public class HistoryDao implements TableHistory {
 
     // TODO: move to DB Query and regex fallback via UI/flag
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest)
             throws DatabaseException {
         Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
@@ -149,21 +157,25 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteHistorySession(long sessionId) throws DatabaseException {
         historyRepository.deleteBySessionId(sessionId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteHistoryType(long sessionId, int historyType) throws DatabaseException {
         historyRepository.deleteBySessionIdAndType(sessionId, historyType);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void delete(int historyId) throws DatabaseException {
         historyRepository.deleteById((long) historyId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void delete(List<Integer> ids) throws DatabaseException {
         if (CollectionUtils.isNotEmpty(ids)) {
             historyRepository.deleteAllById(ids.stream().map(id -> (long) id).collect(Collectors.toList()));
@@ -171,6 +183,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void delete(List<Integer> ids, int batchSize) throws DatabaseException {
         if (!CollectionUtils.isNotEmpty(ids)) {
             ListUtils.partition(ids.stream().map(id -> (long) id).collect(Collectors.toList()), batchSize)
@@ -180,11 +193,13 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteTemporary() throws DatabaseException {
         historyRepository.deleteAllByType(HistoryReference.getTemporaryTypes());
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body)
             throws DatabaseException {
         return historyRepository
@@ -194,6 +209,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg)
             throws DatabaseException, HttpMalformedHeaderException {
         HttpRequestHeader reqHeader = reqMsg.getRequestHeader();
@@ -215,6 +231,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void updateNote(int historyId, String note) throws DatabaseException {
         historyRepository.findById((long) historyId).ifPresent(history -> {
             history.setNote(note);
@@ -223,6 +240,7 @@ public class HistoryDao implements TableHistory {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public int lastIndex() {
         return historyRepository.findMaxId().orElse(0L).intValue();
     }

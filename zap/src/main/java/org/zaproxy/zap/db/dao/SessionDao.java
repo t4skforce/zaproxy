@@ -16,7 +16,6 @@ import org.zaproxy.zap.db.model.SessionModel;
 import org.zaproxy.zap.db.repository.SessionModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class SessionDao implements TableSession {
 
     @Autowired
@@ -28,12 +27,14 @@ public class SessionDao implements TableSession {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void insert(long sessionId, String sessionName) throws DatabaseException {
         SessionModel entity = SessionModel.builder().id(sessionId).name(sessionName).build();
         sessionRepository.save(entity);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void update(long sessionId, String sessionName) throws DatabaseException {
         SessionModel entity = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new DatabaseException("Session with id:" + sessionId + " not found!"));
@@ -42,6 +43,7 @@ public class SessionDao implements TableSession {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordSession> listSessions() throws DatabaseException {
         return IterableUtils.toList(sessionRepository.findAll())
                 .stream()

@@ -16,7 +16,6 @@ import org.zaproxy.zap.db.model.AlertModel;
 import org.zaproxy.zap.db.repository.AlertModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class AlertDao implements TableAlert {
 
     @Autowired
@@ -28,6 +27,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordAlert read(int alertId) throws DatabaseException {
         return alertRepository.findById((long) alertId)
                 .map(alert -> alert.toRecord())
@@ -35,6 +35,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordAlert write(int scanId, int pluginId, String alert, int risk, int confidence, String description,
             String uri, String param, String attack, String otherInfo, String solution, String reference,
             String evidence, int cweId, int wascId, int historyId, int sourceHistoryId, int sourceId, String alertRef)
@@ -63,6 +64,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException {
         return alertRepository.findAllAlertIdBySessionId(sessionId)
                 .stream()
@@ -71,11 +73,13 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteAlert(int alertId) throws DatabaseException {
         alertRepository.deleteById((long) alertId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public int deleteAllAlerts() throws DatabaseException {
         long count = alertRepository.count();
         alertRepository.deleteAll();
@@ -83,6 +87,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void update(int alertId, String alert, int risk, int confidence, String description, String uri,
             String param, String attack, String otherInfo, String solution, String reference, String evidence,
             int cweId, int wascId, int sourceHistoryId) throws DatabaseException {
@@ -106,6 +111,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void updateHistoryIds(int alertId, int historyId, int sourceHistoryId) throws DatabaseException {
         AlertModel entity = alertRepository.findById((long) alertId)
                 .orElseThrow(() -> new DatabaseException("Alert with id:" + alertId + " not found!"));
@@ -115,6 +121,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException {
         return alertRepository.findAllBySourceHistoryId(historyId)
                 .stream()
@@ -123,6 +130,7 @@ public class AlertDao implements TableAlert {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public Vector<Integer> getAlertList() throws DatabaseException {
         return alertRepository.findAllAlertId()
                 .stream()

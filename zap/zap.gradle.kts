@@ -89,19 +89,20 @@ dependencies {
     
     
     api("org.hibernate:hibernate-core:5.4.32.Final")
+    api("org.apache.commons:commons-dbcp2:2.8.0")
     api("org.hibernate:hibernate-entitymanager:5.4.32.Final")
     api("org.hibernate:hibernate-ehcache:5.4.32.Final")
-    api("com.github.v-ladynev:fluent-hibernate-core:0.3.1")
     api("org.javassist:javassist:3.28.0-GA")
     compileOnly("org.projectlombok:lombok:1.18.6")
     api("org.liquibase:liquibase-core:4.3.5")
     api("org.apache.logging.log4j:log4j-liquibase:2.14.1")
     
     api("org.hsqldb:hsqldb:2.5.2")
+    api("org.apache.derby:derby:10.8.2.2")
+    api("com.h2database:h2:1.4.200")
     api("mysql:mysql-connector-java:8.0.25")
     api("org.mariadb.jdbc:mariadb-java-client:2.7.3")
-    
-    
+        
     
     
 

@@ -12,7 +12,6 @@ import org.zaproxy.zap.db.model.ScanModel;
 import org.zaproxy.zap.db.repository.ScanModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class ScanDao implements TableScan {
 
     @Autowired
@@ -24,11 +23,13 @@ public class ScanDao implements TableScan {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordScan getLatestScan() throws DatabaseException {
         return scanRepository.findTopByOrderByIdDesc().map(entity -> entity.toRecord()).orElseGet(null);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordScan read(int scanId) throws DatabaseException {
         return scanRepository.findById((long) scanId)
                 .map(entity -> entity.toRecord())
@@ -36,6 +37,7 @@ public class ScanDao implements TableScan {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordScan insert(long sessionId, String scanName) throws DatabaseException {
         ScanModel entity = ScanModel.builder().sessionId(sessionId).name(scanName).build();
         return scanRepository.save(entity).toRecord();

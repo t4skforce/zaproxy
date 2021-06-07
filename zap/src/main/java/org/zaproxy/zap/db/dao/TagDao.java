@@ -17,7 +17,6 @@ import org.zaproxy.zap.db.repository.HistoryModelRepository;
 import org.zaproxy.zap.db.repository.TagModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class TagDao implements TableTag {
 
     @Autowired
@@ -32,6 +31,7 @@ public class TagDao implements TableTag {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordTag read(long tagId) throws DatabaseException {
         return tagRepository.findById(tagId)
                 .map(entity -> entity.toRecord())
@@ -39,6 +39,7 @@ public class TagDao implements TableTag {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordTag insert(long historyId, String tag) throws DatabaseException {
         return tagRepository
                 .save(TagModel.builder().history(historyModelRepository.findById(historyId).get()).tag(tag).build())
@@ -46,16 +47,19 @@ public class TagDao implements TableTag {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void delete(long historyId, String tag) throws DatabaseException {
         tagRepository.deleteByHistoryIdAndTag(historyId, tag);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteTagsForHistoryID(long historyId) throws DatabaseException {
         tagRepository.deleteByHistoryId(historyId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordTag> getTagsForHistoryID(long historyId) throws DatabaseException {
         return tagRepository.findAllByHistoryId(historyId)
                 .stream()
@@ -64,6 +68,7 @@ public class TagDao implements TableTag {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<String> getAllTags() throws DatabaseException {
         return IterableUtils.toList(tagRepository.findAllTags());
     }

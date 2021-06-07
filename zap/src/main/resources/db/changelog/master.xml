@@ -2,6 +2,12 @@
 
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-	<include file="db/changelog/version-2.10.0.xml" />
-	<include file="db/changelog/version-2.10.1.xml" />
+    
+    <!-- latest represents the current DB scheme -->
+    <include file="version-latest.xml" relativeToChangelogFile="true"/>
+    
+    <!-- versioned changelogs are used for migration of old schemas -->                  
+	<include file="version-2.10.0.xml" relativeToChangelogFile="true"/>
+	<include file="version-2.10.1.xml" relativeToChangelogFile="true"/>
+	
 </databaseChangeLog>

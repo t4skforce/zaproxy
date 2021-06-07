@@ -15,7 +15,6 @@ import org.zaproxy.zap.db.model.StructureModel;
 import org.zaproxy.zap.db.repository.StructureModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class StructureDao implements TableStructure {
 
     @Autowired
@@ -27,6 +26,7 @@ public class StructureDao implements TableStructure {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordStructure read(long sessionId, long structureId) throws DatabaseException {
         return structureRepository.findFirstByIdAndSessionId(sessionId, structureId)
                 .map(entity -> entity.toRecord())
@@ -34,6 +34,7 @@ public class StructureDao implements TableStructure {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordStructure find(long sessionId, String name, String method) throws DatabaseException {
         return structureRepository.findFirstBySessionIdAndNameAndMethod(sessionId, name, method)
                 .map(entity -> entity.toRecord())
@@ -41,6 +42,7 @@ public class StructureDao implements TableStructure {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordStructure> getChildren(long sessionId, long parentId) throws DatabaseException {
         return structureRepository.findBySessionIdAndParentId(sessionId, parentId)
                 .stream()
@@ -49,11 +51,13 @@ public class StructureDao implements TableStructure {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public long getChildCount(long sessionId, long parentId) throws DatabaseException {
         return structureRepository.countBySessionIdAndParentId(sessionId, parentId);
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordStructure insert(long sessionId, long parentId, int historyId, String name, String url, String method)
             throws DatabaseException {
         return structureRepository.save(StructureModel.builder()
@@ -67,12 +71,14 @@ public class StructureDao implements TableStructure {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteLeaf(long sessionId, long structureId) throws DatabaseException {
         // TODO implement
 
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void deleteSubtree(long sessionId, long structureId) throws DatabaseException {
         // TODO implement
 

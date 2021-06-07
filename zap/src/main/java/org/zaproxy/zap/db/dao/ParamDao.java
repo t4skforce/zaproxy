@@ -16,7 +16,6 @@ import org.zaproxy.zap.db.model.ParamModel;
 import org.zaproxy.zap.db.repository.ParamModelRepository;
 
 @Service
-@Transactional(rollbackFor = { DatabaseException.class })
 public class ParamDao implements TableParam {
 
     @Autowired
@@ -28,6 +27,7 @@ public class ParamDao implements TableParam {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordParam read(long urlId) throws DatabaseException {
         return paramRepository.findById(urlId)
                 .map(entity -> entity.toRecord())
@@ -35,6 +35,7 @@ public class ParamDao implements TableParam {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordParam> getAll() throws DatabaseException {
         return IterableUtils.toList(paramRepository.findAll())
                 .stream()
@@ -43,14 +44,16 @@ public class ParamDao implements TableParam {
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public RecordParam insert(String site, String type, String name, int used, String flags, String values)
             throws DatabaseException {
-        return paramRepository
-                .save(ParamModel.builder().site(site).type(type).name(name).used(used).flags(flags).values(values).build())
+        return paramRepository.save(
+                ParamModel.builder().site(site).type(type).name(name).used(used).flags(flags).values(values).build())
                 .toRecord();
     }
 
     @Override
+    @Transactional(rollbackFor = { DatabaseException.class })
     public void update(long paramId, int used, String flags, String values) throws DatabaseException {
         paramRepository.findById(paramId).ifPresent(entity -> {
             entity.setUsed(used);

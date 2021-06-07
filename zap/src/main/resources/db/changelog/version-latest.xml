@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+	<!-- This file represents the latest DB schema of the application. Be aware 
+		to also add version dependent changes in a seperate version file to migrate 
+		from old DB schemas to the current one. -->
+		
+	<property name="autoincrement" dbms="!sqlite" value="bigint"/>
+	<!-- sqlite only supports integer types for autoincrement -->
+  	<property name="autoincrement" dbms="sqlite" value="INTEGER" />
+
+
+	<!-- HISTORY Table -->
+	<changeSet id="create-table-history" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="HISTORY"/>
+		    </not>
+		</preConditions>
+		<createTable tableName="HISTORY">
+			<column  name="HISTORYID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="HISTTYPE" type="int" defaultValueNumeric="1" />
+            <column name="STATUSCODE" type="int" defaultValueNumeric="0" />
+            <column name="TIMESENTMILLIS" type="bigint" defaultValueNumeric="0" />
+            <column name="TIMEELAPSEDMILLIS" type="bigint" defaultValueNumeric="0" />
+            <column name="METHOD" type="varchar(1024)" defaultValue="" />
+            <column name="URI" type="varchar(1048576)" defaultValue="" />
+            <column name="REQHEADER" type="varchar(4194304)" defaultValue="" />
+            <column name="REQBODY" type="blob" defaultValue=""/> <!-- bad idea, can't search via DB query -->
+            <column name="RESHEADER" type="varchar(4194304)" defaultValue="" />
+            <column name="RESBODY" type="blob" defaultValue="" /> <!-- bad idea, can't search via DB query -->
+            <column name="TAG" type="varchar(32768)" defaultValue="" />
+            <column name="NOTE" type="varchar(1048576)" defaultValue="" />
+            <column name="RESPONSEFROMTARGETHOST" type="boolean" defaultValueBoolean="false" />
+            <column name="VERSION" type="bigint" />
+		</createTable>
+		<createIndex indexName="HISTORY_INDEX" tableName="HISTORY">
+      		<column name="URI"/>
+      		<column name="METHOD"/>
+      		<column name="SESSIONID"/>
+      		<column name="HISTTYPE"/>
+      		<column name="HISTORYID"/>
+      		<column name="STATUSCODE"/>
+  		</createIndex>
+		<createIndex indexName="INDEX_HISTORY_HISTTYPE" tableName="HISTORY">
+			<column name="HISTTYPE"/>
+		</createIndex>
+		<createIndex indexName="INDEX_HISTORY_SESSIONID" tableName="HISTORY">
+			<column name="SESSIONID"/>
+		</createIndex>
+	</changeSet>
+	
+	
+	<!-- SESSION Table -->
+	<changeSet id="create-table-session" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SESSION"/>
+		    </not>
+		</preConditions>
+		<createTable tableName="SESSION">
+			<column  name="SESSIONID" type="bigint">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONNAME" type="varchar(32768)" defaultValue="" />
+            <column name="LASTACCESS" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+				<constraints nullable="false"/>             
+            </column>
+            <column name="VERSION" type="bigint" />
+		</createTable>
+	</changeSet>
+	
+	<!-- ALERT Table -->
+	<changeSet id="create-table-alert" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="ALERT"/>
+		    </not>
+		</preConditions>
+        <createTable tableName="ALERT">  
+            <column  name="ALERTID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>  
+            <column name="SCANID" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="PLUGINID" type="int" defaultValueNumeric="0" />
+            <column name="ALERT" type="varchar(16777216)" defaultValue="" />
+            <column name="RISK" type="int" defaultValueNumeric="0" />
+            <column name="RELIABILITY" type="int" defaultValueNumeric="1" />
+            <column name="DESCRIPTION" type="varchar(16777216)" defaultValue="" />
+            <column name="URI" type="varchar(1048576)" defaultValue="" />
+            <column name="PARAM" type="varchar(32768)" defaultValue="" />
+            <column name="OTHERINFO" type="varchar(16777216)" defaultValue="" />
+            <column name="SOLUTION" type="varchar(16777216)" defaultValue="" />
+            <column name="REFERENCE" type="varchar(16777216)" defaultValue="" />
+            <column name="HISTORYID" type="int" />
+            <column name="SOURCEHISTORYID" type="int" defaultValueNumeric="0" />
+            <column name="ATTACK" type="varchar(32768)" defaultValue="" />
+            <column name="EVIDENCE" type="varchar(16777216)" defaultValue="" />
+            <column name="CWEID" type="int" defaultValueNumeric="-1" />
+            <column name="WASCID" type="int" defaultValueNumeric="-1" />
+            <column name="SOURCEID" type="int" defaultValueNumeric="0" />
+            <column name="ALERTREF" type="varchar(256)" defaultValue="" />
+            <column name="VERSION" type="bigint" />
+        </createTable>
+        <createIndex indexName="ALERT_INDEX" tableName="ALERT">
+      		<column name="SOURCEHISTORYID"/>
+  		</createIndex>
+  		<createIndex indexName="INDEX_ALERT_SOURCEID" tableName="ALERT">
+      		<column name="SOURCEID"/>
+  		</createIndex>
+  	</changeSet>
+	
+	<!-- SCAN Table -->
+	<changeSet id="create-table-scan" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SCAN"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="SCAN">
+  			<column  name="SCANID" type="int" autoIncrement="true" startWith="0">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="SCANNAME" type="varchar(32768)" defaultValue="" />
+            <column name="SCANTIME" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+				<constraints nullable="false"/>             
+            </column>
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  	</changeSet>
+  	
+  	<!-- CONTEXT_DATA Table -->
+  	<changeSet id="create-table-context_data" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="CONTEXT_DATA"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="CONTEXT_DATA">
+  			<column  name="DATAID" type="${autoincrement}" autoIncrement="true" startWith="1" >  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="CONTEXTID" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="TYPE" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="DATA" type="varchar(1048576)" defaultValue="" />
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  		<createIndex indexName="INDEX_CONTEXT_DATA_CONTEXTID" tableName="CONTEXT_DATA">
+      		<column name="CONTEXTID"/>
+  		</createIndex>
+  		<createIndex indexName="INDEX_CONTEXT_DATA_TYPE" tableName="CONTEXT_DATA">
+      		<column name="TYPE"/>
+  		</createIndex>
+  	</changeSet>
+  	
+  	<!-- PARAM Table -->
+  	<changeSet id="create-table-param" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="PARAM"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="PARAM">
+  			<column  name="PARAMID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SITE" type="varchar(32768)">
+            	<constraints  nullable="false"/>
+            </column>
+            <column name="TYPE" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="NAME" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="USED" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="FLAGS" type="varchar(32768)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="VALS" type="varchar(8388608)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  	</changeSet>
+  	
+  	<!-- SESSION_URL Table -->
+  	<changeSet id="create-table-session_url" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="SESSION_URL"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="SESSION_URL">
+  			<column  name="URLID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="TYPE" type="int">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="URL" type="varchar(8192)" defaultValue="" />
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  		<createIndex indexName="INDEX_SESSION_URL_TYPE_AND_URL" tableName="SESSION_URL">
+      		<column name="TYPE"/>
+      		<column name="URL"/>
+  		</createIndex>
+  	</changeSet>
+  	
+  	<!-- TAG Table -->
+  	<changeSet id="create-table-tag" author="zap">
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="TAG"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="TAG">
+  			<column  name="TAGID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="HISTORYID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="TAG" type="varchar(1024)" defaultValue="" />
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  		<createIndex indexName="INDEX_TAG_HISTORYID_TAG" tableName="TAG">
+      		<column name="HISTORYID"/>
+      		<column name="TAG"/>
+  		</createIndex>
+    </changeSet>
+
+</databaseChangeLog>

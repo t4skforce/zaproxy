@@ -343,7 +343,7 @@ public class Model {
 
     /** This method should typically only be called from the Control class */
     // TODO disable for non file based sessions
-    public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
+    public void createAndOpenUntitledDb() throws Exception {
 
         getDb().close(false, session.isCleanUpRequired());
 
