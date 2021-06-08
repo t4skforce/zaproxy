@@ -24,6 +24,6 @@ public interface AlertModelRepository extends CacheableCrudRepository<AlertModel
     List<Long> findAllAlertId();
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    List<AlertModel> findAllBySourceHistoryId(int historyId);
+    List<AlertModel> findAllBySourceHistoryId(Long historyId);
 
 }

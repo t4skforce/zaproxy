@@ -49,6 +49,12 @@ public class TagModel extends AbstractModel {
     @JoinColumn(name = "HISTORYID", nullable = false)
     private HistoryModel history;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.TagModel}
+     */
+    @Deprecated
     public RecordTag toRecord() {
         return new RecordTag(getId(), history.getId(), getTag());
     }

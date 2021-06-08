@@ -13,16 +13,16 @@ import org.zaproxy.zap.db.repository.base.CacheableCrudRepository;
  */
 public interface ContextModelRepository extends CacheableCrudRepository<ContextModel, Long> {
 
-    void deleteByContextIdAndTypeAndData(Integer contextId, Integer type, String data);
+    void deleteByContextIdAndTypeAndData(Long contextId, Integer type, String data);
 
-    void deleteByContextIdAndType(Integer contextId, Integer type);
+    void deleteByContextIdAndType(Long contextId, Integer type);
 
-    void deleteByContextId(Integer contextId);
-
-    @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    List<ContextModel> findAllByContextId(Integer contextId);
+    void deleteByContextId(Long contextId);
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    List<ContextModel> findAllByContextIdAndType(Integer contextId, Integer type);
+    List<ContextModel> findAllByContextId(Long contextId);
+
+    @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
+    List<ContextModel> findAllByContextIdAndType(Long contextId, Integer type);
 
 }

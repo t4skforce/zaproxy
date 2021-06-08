@@ -2,10 +2,8 @@ package org.zaproxy.zap.ctx;
 
 import java.io.IOException;
 
-import org.parosproxy.paros.db.Database;
 import org.springframework.beans.BeansException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.zaproxy.zap.db.repository.HistoryModelRepository;
 
 public class ZapContext {
 
@@ -33,17 +31,4 @@ public class ZapContext {
             ctx.close();
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        Database db = getBean(Database.class);
-
-        db.open("/home/username/Desktop/test_session/test.session");
-
-        HistoryModelRepository histRepo = getBean(HistoryModelRepository.class);
-
-        histRepo.findById(1L).get().getTags().size();
-
-        close();
-    }
-
 }

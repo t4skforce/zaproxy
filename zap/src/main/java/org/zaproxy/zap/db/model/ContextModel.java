@@ -40,7 +40,7 @@ public class ContextModel extends AbstractModel {
 
     @NonNull
     @Column(name = "CONTEXTID", nullable = false)
-    private Integer contextId;
+    private Long contextId;
 
     @NonNull
     @Column(name = "TYPE", nullable = false)
@@ -49,7 +49,14 @@ public class ContextModel extends AbstractModel {
     @Column(name = "DATA")
     private String data;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by
+     *             {@link org.zaproxy.zap.db.model.ContextModel}
+     */
+    @Deprecated
     public RecordContext toRecord() {
-        return new RecordContext(getId(), getContextId(), getType(), getData());
+        return new RecordContext(getId(), getContextId().intValue(), getType(), getData());
     }
 }

@@ -1,15 +1,20 @@
 package org.zaproxy.zap.ctx.config;
 
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
+import javax.management.MBeanServer;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.hibernate.cfg.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableMBeanExport;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jmx.support.RegistrationPolicy;
 import org.springframework.orm.hibernate5.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,10 +23,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
+@EnableTransactionManagement
+@PropertySource("classpath:zap.properties")
 @ComponentScan(basePackages = "org.zaproxy")
 @EnableJpaRepositories("org.zaproxy.zap.db")
-@PropertySource("classpath:zap.properties")
-@EnableTransactionManagement
+@EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING, defaultDomain = "org.zaproxy")
 public class ZapConfig {
 
     // TODO: make configurable via ZAP
@@ -65,26 +71,31 @@ public class ZapConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         Properties config = new Properties();
-        config.setProperty("hibernate.jdbc.time_zone", "UTC");
-        config.setProperty("hibernate.jdbc.batch_size", "30");
-        config.setProperty("hibernate.jdbc.fetch_size", "100");
-        config.setProperty("hibernate.jdbc.batch_versioned_data", "true");
-        config.setProperty("hibernate.order_inserts", "true");
-        config.setProperty("hibernate.order_updates", "true");
-        config.setProperty("hibernate.id.new_generator_mappings", "true");
-        config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
-        config.setProperty("hibernate.connection.autocommit", "true");
+        config.setProperty(Environment.JDBC_TIME_ZONE, "UTC");
+        config.setProperty(Environment.STATEMENT_BATCH_SIZE, "30");
+        config.setProperty(Environment.STATEMENT_FETCH_SIZE, "100");
+        config.setProperty(Environment.BATCH_VERSIONED_DATA, "true");
+        config.setProperty(Environment.ORDER_INSERTS, "true");
+        config.setProperty(Environment.ORDER_UPDATES, "true");
+        config.setProperty(Environment.USE_NEW_ID_GENERATOR_MAPPINGS, "true");
+        config.setProperty(Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+        config.setProperty(Environment.AUTOCOMMIT, "true");
 
-        config.setProperty("hibernate.show_sql", "false");
-        config.setProperty("hibernate.format_sql", "false");
-        config.setProperty("hibernate.use_sql_comments", "false");
+        config.setProperty(Environment.SHOW_SQL, "false");
+        config.setProperty(Environment.FORMAT_SQL, "false");
+        config.setProperty(Environment.USE_SQL_COMMENTS, "false");
+        config.setProperty(Environment.GENERATE_STATISTICS, "true");
+        config.setProperty(Environment.JMX_ENABLED, "true");
+        config.setProperty(Environment.JMX_PLATFORM_SERVER, "true");
+        config.setProperty(Environment.JMX_DEFAULT_OBJ_NAME_DOMAIN, "Database");
 
-        config.setProperty("hibernate.query.plan_cache_max_size", "4096");
-        config.setProperty("hibernate.cache.use_second_level_cache", "true");
-        config.setProperty("hibernate.cache.use_query_cache", "true");
-        config.setProperty("hibernate.cache.region.factory_class",
-                "org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory");
-        config.setProperty("hibernate.cache.ehcache.missing_cache_strategy", "create");
+        config.setProperty(Environment.QUERY_PLAN_CACHE_MAX_SIZE, "4096");
+        config.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "true");
+        config.setProperty(Environment.USE_QUERY_CACHE, "true");
+        config.setProperty(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory");
+        config.setProperty(Environment.CACHE_REGION_PREFIX, "zap");
+        config.setProperty("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");
+        config.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
 
         // will set the provider to 'org.hibernate.ejb.HibernatePersistence'
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -103,6 +114,11 @@ public class ZapConfig {
         factory.afterPropertiesSet();
 
         return factory;
+    }
+
+    @Bean
+    public MBeanServer mBeanServer() {
+        return ManagementFactory.getPlatformMBeanServer();
     }
 
 }

@@ -1,5 +1,6 @@
 package org.zaproxy.zap.db.model;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.persistence.Cacheable;
@@ -48,8 +49,16 @@ public class SessionModel extends AbstractModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastAccess = new Date();
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by
+     *             {@link org.zaproxy.zap.db.model.SessionModel}
+     */
+    @Deprecated
     public RecordSession toRecord() {
-        return new RecordSession(getId(), getName(), java.sql.Date.valueOf(getLastAccess().toLocaleString()));
+        return new RecordSession(getId(), getName(),
+                java.sql.Date.valueOf(getLastAccess().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
     }
 
 }

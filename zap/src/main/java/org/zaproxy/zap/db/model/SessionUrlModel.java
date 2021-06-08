@@ -47,6 +47,13 @@ public class SessionUrlModel extends AbstractModel {
     @Column(name = "URL", length = 8192)
     private String url = StringUtils.EMPTY;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by
+     *             {@link org.zaproxy.zap.db.model.SessionUrlModel}
+     */
+    @Deprecated
     public RecordSessionUrl toRecord() {
         return new RecordSessionUrl(getId(), getType(), getUrl());
     }

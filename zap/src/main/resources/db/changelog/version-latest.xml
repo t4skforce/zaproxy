@@ -9,10 +9,6 @@
 	<!-- This file represents the latest DB schema of the application. Be aware 
 		to also add version dependent changes in a seperate version file to migrate 
 		from old DB schemas to the current one. -->
-		
-	<property name="autoincrement" dbms="!sqlite" value="bigint"/>
-	<!-- sqlite only supports integer types for autoincrement -->
-  	<property name="autoincrement" dbms="sqlite" value="INTEGER" />
 
 
 	<!-- HISTORY Table -->
@@ -23,7 +19,7 @@
 		    </not>
 		</preConditions>
 		<createTable tableName="HISTORY">
-			<column  name="HISTORYID" type="int" autoIncrement="true" startWith="0">  
+			<column  name="HISTORYID" type="bigint" autoIncrement="true" startWith="0">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
             <column name="SESSIONID" type="bigint">
@@ -88,10 +84,10 @@
 		    </not>
 		</preConditions>
         <createTable tableName="ALERT">  
-            <column  name="ALERTID" type="int" autoIncrement="true" startWith="0">  
+            <column  name="ALERTID" type="bigint" autoIncrement="true" startWith="0">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>  
-            <column name="SCANID" type="int">
+            <column name="SCANID" type="bigint">
             	<constraints  nullable="false"/> 
             </column>
             <column name="PLUGINID" type="int" defaultValueNumeric="0" />
@@ -104,8 +100,8 @@
             <column name="OTHERINFO" type="varchar(16777216)" defaultValue="" />
             <column name="SOLUTION" type="varchar(16777216)" defaultValue="" />
             <column name="REFERENCE" type="varchar(16777216)" defaultValue="" />
-            <column name="HISTORYID" type="int" />
-            <column name="SOURCEHISTORYID" type="int" defaultValueNumeric="0" />
+            <column name="HISTORYID" type="bigint" />
+            <column name="SOURCEHISTORYID" type="bigint" defaultValueNumeric="0" />
             <column name="ATTACK" type="varchar(32768)" defaultValue="" />
             <column name="EVIDENCE" type="varchar(16777216)" defaultValue="" />
             <column name="CWEID" type="int" defaultValueNumeric="-1" />
@@ -130,7 +126,7 @@
 		    </not>
 		</preConditions>
   		<createTable tableName="SCAN">
-  			<column  name="SCANID" type="int" autoIncrement="true" startWith="0">  
+  			<column  name="SCANID" type="bigint" autoIncrement="true" startWith="0">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
             <column name="SESSIONID" type="bigint">
@@ -152,10 +148,10 @@
 		    </not>
 		</preConditions>
   		<createTable tableName="CONTEXT_DATA">
-  			<column  name="DATAID" type="${autoincrement}" autoIncrement="true" startWith="1" >  
+  			<column  name="DATAID" type="bigint" autoIncrement="true" startWith="1" >  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
-            <column name="CONTEXTID" type="int">
+            <column name="CONTEXTID" type="bigint">
             	<constraints  nullable="false"/> 
             </column>
             <column name="TYPE" type="int">
@@ -180,7 +176,7 @@
 		    </not>
 		</preConditions>
   		<createTable tableName="PARAM">
-  			<column  name="PARAMID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+  			<column  name="PARAMID" type="bigint" autoIncrement="true" startWith="1">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
             <column name="SITE" type="varchar(32768)">
@@ -213,7 +209,7 @@
 		    </not>
 		</preConditions>
   		<createTable tableName="SESSION_URL">
-  			<column  name="URLID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+  			<column  name="URLID" type="bigint" autoIncrement="true" startWith="1">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
             <column name="TYPE" type="int">
@@ -236,7 +232,7 @@
 		    </not>
 		</preConditions>
   		<createTable tableName="TAG">
-  			<column  name="TAGID" type="${autoincrement}" autoIncrement="true" startWith="1">  
+  			<column  name="TAGID" type="bigint" autoIncrement="true" startWith="1">  
                 <constraints  primaryKey="true" nullable="false"/>  
             </column>
             <column name="HISTORYID" type="bigint">

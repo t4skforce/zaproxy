@@ -1,5 +1,7 @@
 package org.zaproxy.zap.db.service;
 
+import static org.hibernate.cfg.AvailableSettings.DIALECT;
+
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Map;
@@ -129,12 +131,17 @@ public class DatabaseService extends AbstractDatabase {
             ds.setMaxTotal(getProperty("pool.max_total", Integer.class, 1));
             ds.setMaxWaitMillis(getProperty("pool.max_wait", Integer.class, -1));
             ds.setPoolPreparedStatements(true);
+
+            // restart is required to apply changes
             ds.restart();
 
             Properties config = new Properties();
-            config.setProperty("hibernate.dialect", getProperty("dialect", "org.hibernate.dialect.HSQLDialect"));
+            config.setProperty(DIALECT, getProperty("dialect", "org.hibernate.dialect.HSQLDialect"));
 
             entityManagerFactory.setJpaProperties(config);
+
+            // restart is required to apply changes
+            entityManagerFactory.destroy();
             entityManagerFactory.afterPropertiesSet();
 
             LOG.info("DB connection string: {}", ds.getUrl());

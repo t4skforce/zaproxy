@@ -1,5 +1,6 @@
 package org.zaproxy.zap.db.model;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.persistence.Cacheable;
@@ -54,8 +55,15 @@ public class ScanModel extends AbstractModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.ScanModel}
+     */
+    @Deprecated
     public RecordScan toRecord() {
-        return new RecordScan(getId().intValue(), getName(), java.sql.Date.valueOf(getTime().toLocaleString()));
+        return new RecordScan(getId().intValue(), getName(),
+                java.sql.Date.valueOf(getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
     }
 
 }

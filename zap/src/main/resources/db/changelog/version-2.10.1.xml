@@ -94,5 +94,84 @@
 			<column name="VERSION" type="bigint" />
 		</addColumn>
     </changeSet>
-	
+    
+    
+    <!-- migrate primary keys to bigint -->
+    <changeSet id="history-resize-column-historyid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'HISTORY' AND COLUMN_NAME = 'HISTORYID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="HISTORY" columnName="HISTORYID" newDataType="bigint"/>
+    </changeSet>
+    
+    <changeSet id="alert-resize-column-alertid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'ALERT' AND COLUMN_NAME = 'ALERTID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="ALERT" columnName="ALERTID" newDataType="bigint"/>
+    </changeSet>
+    
+    <changeSet id="alert-resize-column-historyid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'ALERT' AND COLUMN_NAME = 'HISTORYID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="ALERT" columnName="HISTORYID" newDataType="bigint"/>
+    </changeSet>
+    
+    <changeSet id="alert-resize-column-sourcehistoryid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'ALERT' AND COLUMN_NAME = 'SOURCEHISTORYID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="ALERT" columnName="SOURCEHISTORYID" newDataType="bigint"/>
+    </changeSet>
+    
+    <changeSet id="alert-resize-column-scanid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'ALERT' AND COLUMN_NAME = 'SCANID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="ALERT" columnName="SCANID" newDataType="bigint"/>
+    </changeSet>
+
+    <changeSet id="scan-resize-column-scanid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'SCAN' AND COLUMN_NAME = 'SCANID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="SCAN" columnName="SCANID" newDataType="bigint"/>
+    </changeSet>
+    
+    <changeSet id="context_data-resize-column-contextid-2.10.1" author="zap" dbms="hsqldb">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <sqlCheck expectedResult="BIGINT">
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'CONTEXT_DATA' AND COLUMN_NAME = 'CONTEXTID'
+		        </sqlCheck>
+		    </not>
+		</preConditions>
+		<modifyDataType tableName="CONTEXT_DATA" columnName="CONTEXTID" newDataType="bigint"/>
+    </changeSet>
+    	
 </databaseChangeLog>

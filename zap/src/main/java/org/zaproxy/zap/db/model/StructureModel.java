@@ -66,6 +66,13 @@ public class StructureModel extends AbstractModel {
     @Column(name = "METHOD", nullable = false, length = 10)
     private String method;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by
+     *             {@link org.zaproxy.zap.db.model.StructureModel}
+     */
+    @Deprecated
     public RecordStructure toRecord() {
         return new RecordStructure(getSessionId(), getId(), getParentId(), getHistoryId().intValue(), getName(),
                 getUrl(), getMethod());

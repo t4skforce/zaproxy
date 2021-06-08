@@ -41,7 +41,7 @@ public class AlertModel extends AbstractModel {
 
     @NonNull
     @Column(name = "SCANID", nullable = false)
-    private Integer scanId;
+    private Long scanId;
 
     @Builder.Default
     @Column(name = "PLUGINID")
@@ -77,10 +77,10 @@ public class AlertModel extends AbstractModel {
     private String reference;
 
     @Column(name = "HISTORYID")
-    private Integer historyId;
+    private Long historyId;
 
     @Column(name = "SOURCEHISTORYID")
-    private Integer sourceHistoryId;
+    private Long sourceHistoryId;
 
     @Column(name = "ATTACK")
     private String attack;
@@ -104,11 +104,17 @@ public class AlertModel extends AbstractModel {
     @Column(name = "ALERTREF", length = 256)
     private String alertRef = StringUtils.EMPTY;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.AlertModel}
+     */
+    @Deprecated
     public RecordAlert toRecord() {
-        return new RecordAlert(getId().intValue(), getScanId(), getPluginId(), getName(), getRisk(), getConfidence(),
-                getDescription(), getUri(), getParam(), getAttack(), getOtherInfo(), getSolution(), getReference(),
-                getEvidence(), getCweId(), getWascId(), getHistoryId(), getSourceHistoryId(), getSourceId(),
-                getAlertRef());
+        return new RecordAlert(getId().intValue(), getScanId().intValue(), getPluginId(), getName(), getRisk(),
+                getConfidence(), getDescription(), getUri(), getParam(), getAttack(), getOtherInfo(), getSolution(),
+                getReference(), getEvidence(), getCweId(), getWascId(), getHistoryId().intValue(),
+                getSourceHistoryId().intValue(), getSourceId(), getAlertRef());
     }
 
 }

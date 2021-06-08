@@ -37,14 +37,12 @@
 		<preConditions onFail="MARK_RAN">
 			<columnExists tableName="HISTORY" columnName="REQBODY"/>
 			<not>
-				<sqlCheck expectedResult="VARBINARY">
+				<sqlCheck expectedResult="BINARY LARGE OBJECT">
 		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'HISTORY' AND COLUMN_NAME = 'REQBODY'
 		        </sqlCheck>
-		        <or>
-		        	<sqlCheck expectedResult="16777216">
-		        		SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'HISTORY' AND COLUMN_NAME = 'REQBODY'
-		        	</sqlCheck>
-		        </or>
+	        	<sqlCheck expectedResult="1073741824">
+	        		SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'HISTORY' AND COLUMN_NAME = 'REQBODY'
+	        	</sqlCheck>
 		    </not>
 		</preConditions>
 		<modifyDataType tableName="HISTORY" columnName="REQBODY" newDataType="blob"/>
@@ -54,7 +52,7 @@
 		<!-- ensure column RESBODY has minimum size -->
 		<preConditions onFail="MARK_RAN">
 			<not>
-				<sqlCheck expectedResult="16777216">
+				<sqlCheck expectedResult="1073741824">
 	        		SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'HISTORY' AND COLUMN_NAME = 'RESBODY'
 	        	</sqlCheck>
 		    </not>

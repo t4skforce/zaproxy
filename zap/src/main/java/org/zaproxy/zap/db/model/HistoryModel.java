@@ -104,6 +104,13 @@ public class HistoryModel extends AbstractModel {
     @OneToMany(mappedBy = "history", fetch = FetchType.LAZY)
     private List<TagModel> tags = new ArrayList<>();
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by
+     *             {@link org.zaproxy.zap.db.model.HistoryModel}
+     */
+    @Deprecated
     public RecordHistory toRecord() throws HttpMalformedHeaderException {
         return new RecordHistory(getId().intValue(), getType(), getSessionId().intValue(),
                 getTimeSentMillis().intValue(), getTimeElapsedMillis().intValue(), getRequestHeader(),

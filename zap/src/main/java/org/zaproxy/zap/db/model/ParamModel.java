@@ -62,6 +62,12 @@ public class ParamModel extends AbstractModel {
     @Column(name = "VALS", nullable = false)
     private String values;
 
+    /**
+     * Legacy support for zapproxy models
+     *
+     * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.ParamModel}
+     */
+    @Deprecated
     public RecordParam toRecord() {
         return new RecordParam(getId(), getSite(), getType(), getName(), getUsed(), getFlags(), getValues());
     }
