@@ -21,13 +21,15 @@ public class CacheConfig {
     private Resource ehcacheConfig;
 
     @Bean
-    public JCacheCacheManager jCacheCacheManager() throws IOException {
-        return new JCacheCacheManager(cacheManager());
+    public org.springframework.cache.CacheManager cacheManager() throws IOException {
+        JCacheCacheManager cacheManager = new JCacheCacheManager(jCacheManager());
+        cacheManager.setTransactionAware(true);
+        return cacheManager;
     }
 
-    // TODO: exposing cachestats via JMX is not working at the moment
+    // TODO: exposing cache stats via JMX is not working at the moment
     @Bean(destroyMethod = "close")
-    public CacheManager cacheManager() throws IOException {
+    public CacheManager jCacheManager() throws IOException {
         CachingProvider provider = Caching.getCachingProvider();
         return provider.getCacheManager(ehcacheConfig.getURI(), getClass().getClassLoader());
     }

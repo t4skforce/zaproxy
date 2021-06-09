@@ -95,7 +95,6 @@ dependencies {
     api("org.hibernate:hibernate-jcache:5.4.32.Final")
     api("org.ehcache:ehcache:3.9.4")
     api("javax.cache:cache-api:1.1.1")
-    api("org.ehcache.modules:ehcache-jmx:3.0.0.m1")
     
     api("org.javassist:javassist:3.28.0-GA")
     compileOnly("org.projectlombok:lombok:1.18.6")
