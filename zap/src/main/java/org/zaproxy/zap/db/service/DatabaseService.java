@@ -1,18 +1,13 @@
 package org.zaproxy.zap.db.service;
 
-import static org.hibernate.cfg.AvailableSettings.DIALECT;
-
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,15 +25,8 @@ import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
 
 @Service
 @Transactional(rollbackFor = { DatabaseException.class })
@@ -82,13 +70,10 @@ public class DatabaseService extends AbstractDatabase {
     private TableStructure tableStructure;
 
     @Autowired
-    private DataSource dataSource;
-
-    @Autowired
     private Environment env;
 
     @Autowired
-    private LocalContainerEntityManagerFactoryBean entityManagerFactory;
+    private HibernateService hibernate;
 
     @Override
     public DatabaseServer getDatabaseServer() {
@@ -110,7 +95,6 @@ public class DatabaseService extends AbstractDatabase {
         try {
             // DriverManagerDataSource ds =
             // dataSource.unwrap(DriverManagerDataSource.class);
-            BasicDataSource ds = (BasicDataSource) dataSource;
 
             setType("hsqldb");
 
@@ -120,46 +104,18 @@ public class DatabaseService extends AbstractDatabase {
             params.put("url", path);
             params.put("name", path);
 
-            ds.setDriverClassName(getProperty("driver", "org.hsqldb.jdbc.JDBCDriver"));
-            ds.setUrl(getProperty("url", "file:{path};hsqldb.default_table_type=cached", params));
-            ds.setUsername(getProperty("username", "sa"));
-            ds.setPassword(getProperty("password", ""));
-
-            ds.setInitialSize(getProperty("pool.initial_size", Integer.class, 3));
-            ds.setMaxIdle(getProperty("pool.max_idle", Integer.class, 3));
-            ds.setMinIdle(getProperty("pool.min_idle", Integer.class, 0));
-            ds.setMaxTotal(getProperty("pool.max_total", Integer.class, 1));
-            ds.setMaxWaitMillis(getProperty("pool.max_wait", Integer.class, -1));
-            ds.setPoolPreparedStatements(true);
-
-            // restart is required to apply changes
-            ds.restart();
-
-            Properties config = new Properties();
-            config.setProperty(DIALECT, getProperty("dialect", "org.hibernate.dialect.HSQLDialect"));
-
-            entityManagerFactory.setJpaProperties(config);
-
-            // restart is required to apply changes
-            entityManagerFactory.destroy();
-            entityManagerFactory.afterPropertiesSet();
-
-            LOG.info("DB connection string: {}", ds.getUrl());
-
-            // Initialize Liquibase and run the update
-            try (java.sql.Connection conn = dataSource.getConnection()) {
-                Database database = DatabaseFactory.getInstance()
-                        .findCorrectDatabaseImplementation(new JdbcConnection(dataSource.getConnection()));
-                try (Liquibase liquibase = new Liquibase("db/changelog/master.xml", new ClassLoaderResourceAccessor(),
-                        database)) {
-                    liquibase.update("init");
-                }
-            }
+            hibernate.setDialect(getProperty("dialect", hibernate.getDialect()))
+                    .setJdbcDriverClassName(getProperty("driver", hibernate.getJdbcDriverClassName()))
+                    .setJdbcUrl(getProperty("url", hibernate.getJdbcUrl(), params))
+                    .setJdbcUsername(getProperty("username", "sa"))
+                    .setJdbcPassword(getProperty("password", ""))
+                    .apply();
 
             notifyListenersDatabaseOpen(databaseServer);
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
         }
+
     }
 
     @Override

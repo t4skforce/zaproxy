@@ -95,6 +95,17 @@
 		</addColumn>
     </changeSet>
     
+    <changeSet id="structure-add-column-version-2.10.1" author="zap">
+    	<preConditions onFail="MARK_RAN">
+		    <not>
+		        <columnExists tableName="STRUCTURE" columnName="VERSION"/>
+		    </not>
+		</preConditions>
+		<addColumn tableName="STRUCTURE">
+			<column name="VERSION" type="bigint" />
+		</addColumn>
+    </changeSet>
+    
     
     <!-- migrate primary keys to bigint -->
     <changeSet id="history-resize-column-historyid-2.10.1" author="zap" dbms="hsqldb">
@@ -106,6 +117,8 @@
 		    </not>
 		</preConditions>
 		<modifyDataType tableName="HISTORY" columnName="HISTORYID" newDataType="bigint"/>
+		<customChange class="org.zaproxy.zap.db.liquibase.AddAutoIncrementChange"
+		tableName="HISTORY" columnName="HISTORYID" columnDataType="bigint" startWith="0"/>
     </changeSet>
     
     <changeSet id="alert-resize-column-alertid-2.10.1" author="zap" dbms="hsqldb">
@@ -117,6 +130,8 @@
 		    </not>
 		</preConditions>
 		<modifyDataType tableName="ALERT" columnName="ALERTID" newDataType="bigint"/>
+		<customChange class="org.zaproxy.zap.db.liquibase.AddAutoIncrementChange" 
+		tableName="ALERT" columnName="ALERTID" columnDataType="bigint" startWith="0"/>
     </changeSet>
     
     <changeSet id="alert-resize-column-historyid-2.10.1" author="zap" dbms="hsqldb">
@@ -161,17 +176,23 @@
 		    </not>
 		</preConditions>
 		<modifyDataType tableName="SCAN" columnName="SCANID" newDataType="bigint"/>
+		<customChange class="org.zaproxy.zap.db.liquibase.AddAutoIncrementChange"
+		tableName="SCAN" columnName="SCANID" columnDataType="bigint" startWith="0"/>
     </changeSet>
     
+     
     <changeSet id="context_data-resize-column-contextid-2.10.1" author="zap" dbms="hsqldb">
     	<preConditions onFail="MARK_RAN">
 		    <not>
 		        <sqlCheck expectedResult="BIGINT">
-		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'CONTEXT_DATA' AND COLUMN_NAME = 'CONTEXTID'
+		        	SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'CONTEXT_DATA' AND COLUMN_NAME = 'DATAID'
 		        </sqlCheck>
 		    </not>
 		</preConditions>
-		<modifyDataType tableName="CONTEXT_DATA" columnName="CONTEXTID" newDataType="bigint"/>
+		
+		<modifyDataType tableName="CONTEXT_DATA" columnName="DATAID" newDataType="bigint"/>
+		<customChange class="org.zaproxy.zap.db.liquibase.AddAutoIncrementChange"
+		tableName="CONTEXT_DATA" columnName="DATAID" columnDataType="bigint" startWith="1"/>
     </changeSet>
     	
 </databaseChangeLog>

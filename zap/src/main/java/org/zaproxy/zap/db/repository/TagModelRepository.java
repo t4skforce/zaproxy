@@ -6,6 +6,7 @@ import javax.persistence.QueryHint;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 import org.zaproxy.zap.db.model.TagModel;
 import org.zaproxy.zap.db.repository.base.CacheableCrudRepository;
 
@@ -19,7 +20,8 @@ public interface TagModelRepository extends CacheableCrudRepository<TagModel, Lo
     void deleteByHistoryId(Long historyId);
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    List<TagModel> findAllByHistoryId(Long historyId);
+    @Query("SELECT t FROM #{#entityName} t WHERE t.history.id = :historyId")
+    List<TagModel> findAllByHistoryId(@Param("historyId") Long historyId);
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
     @Query("SELECT DISTINCT tag FROM #{#entityName} ORDER BY tag")

@@ -13,6 +13,7 @@
 
 	<!-- HISTORY Table -->
 	<changeSet id="create-table-history" author="zap">
+		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="HISTORY"/>
@@ -59,6 +60,7 @@
 	
 	<!-- SESSION Table -->
 	<changeSet id="create-table-session" author="zap">
+		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="SESSION"/>
@@ -78,6 +80,7 @@
 	
 	<!-- ALERT Table -->
 	<changeSet id="create-table-alert" author="zap">
+		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="ALERT"/>
@@ -120,6 +123,7 @@
 	
 	<!-- SCAN Table -->
 	<changeSet id="create-table-scan" author="zap">
+		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="SCAN"/>
@@ -142,6 +146,7 @@
   	
   	<!-- CONTEXT_DATA Table -->
   	<changeSet id="create-table-context_data" author="zap">
+  		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="CONTEXT_DATA"/>
@@ -170,6 +175,7 @@
   	
   	<!-- PARAM Table -->
   	<changeSet id="create-table-param" author="zap">
+  		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="PARAM"/>
@@ -203,6 +209,7 @@
   	
   	<!-- SESSION_URL Table -->
   	<changeSet id="create-table-session_url" author="zap">
+  		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="SESSION_URL"/>
@@ -226,6 +233,7 @@
   	
   	<!-- TAG Table -->
   	<changeSet id="create-table-tag" author="zap">
+  		<validCheckSum>any</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 		    <not>
 		        <tableExists tableName="TAG"/>
@@ -244,6 +252,53 @@
   		<createIndex indexName="INDEX_TAG_HISTORYID_TAG" tableName="TAG">
       		<column name="HISTORYID"/>
       		<column name="TAG"/>
+  		</createIndex>
+    </changeSet>
+    
+    <!-- STRUCTURE Table -->
+    <changeSet id="create-table-structure" author="zap">
+  		<validCheckSum>any</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+		    <not>
+		        <tableExists tableName="STRUCTURE"/>
+		    </not>
+		</preConditions>
+  		<createTable tableName="STRUCTURE">
+  			<column  name="STRUCTUREID" type="bigint" autoIncrement="true" startWith="1">  
+                <constraints  primaryKey="true" nullable="false"/>  
+            </column>
+            <column name="SESSIONID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="PARENTID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="HISTORYID" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="NAME" type="varchar(8192)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="NAMEHASH" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="URL" type="varchar(8192)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="METHOD" type="varchar(10)">
+            	<constraints  nullable="false"/> 
+            </column>
+            <column name="VERSION" type="bigint" />
+  		</createTable>
+  		<createIndex indexName="INDEX_STRUCTURE_STRUCTUREID_SESSIONID_PARENTID" tableName="STRUCTURE">
+      		<column name="STRUCTUREID"/>
+      		<column name="SESSIONID"/>
+      		<column name="PARENTID"/>
+  		</createIndex>
+  		<createIndex indexName="INDEX_STRUCTURE_SESSIONID_NAME_METHOD" tableName="STRUCTURE">
+      		<column name="SESSIONID"/>
+      		<column name="NAME"/>
+      		<column name="METHOD"/>
   		</createIndex>
     </changeSet>
 

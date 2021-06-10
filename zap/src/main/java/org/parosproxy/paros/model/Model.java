@@ -69,7 +69,6 @@ import org.parosproxy.paros.db.Database;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.ctx.ZapContext;
-import org.zaproxy.zap.db.sql.DbSQL;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -190,13 +189,7 @@ public class Model {
     public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
         getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 
-        // TODO: remove experiamental switch
-        if (overrides.isExperimentalDb()) {
-            logger.info("Using experimental database :/");
-            db = DbSQL.getSingleton().initDatabase();
-        } else {
-            db = ZapContext.getBean(Database.class);
-        }
+        db = ZapContext.getBean(Database.class);
 
         createAndOpenUntitledDb();
 

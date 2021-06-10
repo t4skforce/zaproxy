@@ -30,24 +30,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.transform.stream.StreamSource;
+
 import org.apache.commons.httpclient.URI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
-import org.parosproxy.paros.db.paros.ParosDatabase;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -57,8 +58,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
-public class ExtensionCompare extends ExtensionAdaptor
-        implements SessionChangedListener, SessionListener {
+public class ExtensionCompare extends ExtensionAdaptor implements SessionChangedListener, SessionListener {
 
     private static final String NAME = "ExtensionCompare";
 
@@ -69,7 +69,7 @@ public class ExtensionCompare extends ExtensionAdaptor
 
     public ExtensionCompare() {
         super(NAME);
-        this.setOrder(44);
+        setOrder(44);
     }
 
     @Override
@@ -94,37 +94,37 @@ public class ExtensionCompare extends ExtensionAdaptor
         } else {
 
             try {
-                EventQueue.invokeAndWait(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                sessionChangedEventHandler(session);
-                            }
-                        });
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        sessionChangedEventHandler(session);
+                    }
+                });
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
             }
         }
     }
 
-    private void sessionChangedEventHandler(Session session) {}
+    private void sessionChangedEventHandler(Session session) {
+    }
 
     @Override
-    public void sessionScopeChanged(Session session) {}
+    public void sessionScopeChanged(Session session) {
+    }
 
     private JMenuItem getMenuCompare() {
         if (menuCompare == null) {
             menuCompare = new JMenuItem();
             menuCompare.setText(Constant.messages.getString("cmp.file.menu.compare"));
 
-            menuCompare.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
+            menuCompare.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
 
-                            compareSessions();
-                        }
-                    });
+                    compareSessions();
+                }
+            });
         }
         return menuCompare;
     }
@@ -144,19 +144,13 @@ public class ExtensionCompare extends ExtensionAdaptor
             return;
         }
 
-        List<Integer> hIds =
-                th.getHistoryIdsOfHistType(
-                        rh.getSessionId(),
-                        HistoryReference.TYPE_PROXIED,
-                        HistoryReference.TYPE_ZAP_USER,
-                        HistoryReference.TYPE_SPIDER,
-                        HistoryReference.TYPE_SPIDER_AJAX);
+        List<Integer> hIds = th.getHistoryIdsOfHistType(rh.getSessionId(), HistoryReference.TYPE_PROXIED,
+                HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER, HistoryReference.TYPE_SPIDER_AJAX);
 
         for (Integer hId : hIds) {
             RecordHistory recH = th.read(hId);
             URI uri = recH.getHttpMessage().getRequestHeader().getURI();
-            String mapKey =
-                    recH.getHttpMessage().getRequestHeader().getMethod() + " " + uri.toString();
+            String mapKey = recH.getHttpMessage().getRequestHeader().getMethod() + " " + uri.toString();
 
             // TODO Optionally strip off params?
             if (mapKey.indexOf("?") > -1) {
@@ -174,26 +168,24 @@ public class ExtensionCompare extends ExtensionAdaptor
     }
 
     private void compareSessions() {
-        JFileChooser chooser =
-                new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+        JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
         File file = null;
-        chooser.setFileFilter(
-                new FileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        if (file.isDirectory()) {
-                            return true;
-                        } else if (file.isFile() && file.getName().endsWith(".session")) {
-                            return true;
-                        }
-                        return false;
-                    }
+        chooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                if (file.isDirectory()) {
+                    return true;
+                } else if (file.isFile() && file.getName().endsWith(".session")) {
+                    return true;
+                }
+                return false;
+            }
 
-                    @Override
-                    public String getDescription() {
-                        return Constant.messages.getString("file.format.zap.session");
-                    }
-                });
+            @Override
+            public String getDescription() {
+                return Constant.messages.getString("file.format.zap.session");
+            }
+        });
         int rc = chooser.showOpenDialog(getView().getMainFrame());
         if (rc == JFileChooser.APPROVE_OPTION) {
             try {
@@ -201,28 +193,27 @@ public class ExtensionCompare extends ExtensionAdaptor
                 if (file == null) {
                     return;
                 }
-                Model cmpModel = new Model();
-                Session session = cmpModel.getSession();
-
-                // log.info("opening session file " + file.getAbsolutePath());
-                // WaitMessageDialog waitMessageDialog =
-                // getView().getWaitMessageDialog("Loading session file.  Please wait...");
-                cmpModel.openSession(file, this);
-
-                // TODO support other implementations in the future
-                ParosDatabase db = new ParosDatabase();
-                db.setDatabaseParam(new DatabaseParam());
-                db.open(file.getAbsolutePath());
+                Database db = Model.getSingleton().getDb();
+                Session session = Model.getSingleton().getSession();
+                String curSessionDbFile = session.getFileName();
 
                 Map<String, String> curMap = new HashMap<>();
                 Map<String, String> cmpMap = new HashMap<>();
 
-                // Load the 2 sessions into 2 maps
-                this.buildHistoryMap(Model.getSingleton().getDb().getTableHistory(), curMap);
-                this.buildHistoryMap(db.getTableHistory(), cmpMap);
+                // Load current session into map
+                buildHistoryMap(db.getTableHistory(), curMap);
+                db.close(false, false);
 
-                File outputFile = this.getOutputFile();
+                // Load second session into map
+                db.open(file.getAbsolutePath());
+                buildHistoryMap(db.getTableHistory(), cmpMap);
+                db.close(false, false);
 
+                // Open previous session again
+                db.open(curSessionDbFile);
+
+                // Compare
+                File outputFile = getOutputFile();
                 if (outputFile != null) {
                     // Write the result to the specified file
                     try {
@@ -295,21 +286,16 @@ public class ExtensionCompare extends ExtensionAdaptor
                         String fileName = "reportCompare.xsl";
                         Path xslFile = Paths.get(Constant.getZapInstall(), "xml", fileName);
                         if (Files.exists(xslFile)) {
-                            ReportGenerator.stringToHtml(
-                                    sb.toString(),
-                                    xslFile.toString(),
+                            ReportGenerator.stringToHtml(sb.toString(), xslFile.toString(),
                                     outputFile.getAbsolutePath());
                         } else {
                             String path = "/org/zaproxy/zap/resources/xml/" + fileName;
-                            try (InputStream is =
-                                    ExtensionCompare.class.getResourceAsStream(path)) {
+                            try (InputStream is = ExtensionCompare.class.getResourceAsStream(path)) {
                                 if (is == null) {
                                     log.error("Bundled file not found: " + path);
                                     return;
                                 }
-                                ReportGenerator.stringToHtml(
-                                        sb.toString(),
-                                        new StreamSource(is),
+                                ReportGenerator.stringToHtml(sb.toString(), new StreamSource(is),
                                         outputFile.getAbsolutePath());
                             }
                         }
@@ -323,11 +309,8 @@ public class ExtensionCompare extends ExtensionAdaptor
                             DesktopUtils.openUrlInBrowser(outputFile.toURI());
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);
-                            getView()
-                                    .showMessageDialog(
-                                            Constant.messages.getString(
-                                                    "report.complete.warning",
-                                                    outputFile.getAbsolutePath()));
+                            getView().showMessageDialog(Constant.messages.getString("report.complete.warning",
+                                    outputFile.getAbsolutePath()));
                         }
 
                     } catch (Exception e1) {
@@ -345,11 +328,9 @@ public class ExtensionCompare extends ExtensionAdaptor
 
     private File getOutputFile() {
 
-        JFileChooser chooser =
-                new WritableFileChooser(getModel().getOptionsParam().getUserDirectory());
+        JFileChooser chooser = new WritableFileChooser(getModel().getOptionsParam().getUserDirectory());
         chooser.setFileFilter(
-                new FileNameExtensionFilter(
-                        Constant.messages.getString("file.format.html"), "htm", "html"));
+                new FileNameExtensionFilter(Constant.messages.getString("file.format.html"), "htm", "html"));
 
         File file = null;
         int rc = chooser.showSaveDialog(getView().getMainFrame());
@@ -368,13 +349,16 @@ public class ExtensionCompare extends ExtensionAdaptor
     }
 
     @Override
-    public void sessionOpened(File file, Exception e) {}
+    public void sessionOpened(File file, Exception e) {
+    }
 
     @Override
-    public void sessionSaved(Exception e) {}
+    public void sessionSaved(Exception e) {
+    }
 
     @Override
-    public void sessionAboutToChange(Session session) {}
+    public void sessionAboutToChange(Session session) {
+    }
 
     @Override
     public String getAuthor() {

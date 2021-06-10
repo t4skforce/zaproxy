@@ -56,7 +56,7 @@ public class StructureModel extends AbstractModel {
 
     @NonNull
     @Column(name = "NAMEHASH", nullable = false)
-    private Integer nameHash;
+    private Long nameHash;
 
     @NonNull
     @Column(name = "URL", nullable = false)

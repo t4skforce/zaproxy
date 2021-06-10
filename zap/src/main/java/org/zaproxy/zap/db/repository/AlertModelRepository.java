@@ -16,7 +16,7 @@ import org.zaproxy.zap.db.repository.base.CacheableCrudRepository;
 public interface AlertModelRepository extends CacheableCrudRepository<AlertModel, Long> {
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    @Query("SELECT a.id FROM #{#entityName} a JOIN ScanModel s ON a.scanId = s.id AND s.id = :sessionId ORDER BY id")
+    @Query("SELECT alert.id FROM #{#entityName} alert WHERE alert.scanId.id = :sessionId ORDER BY id")
     List<Long> findAllAlertIdBySessionId(@Param("sessionId") Long sessionId);
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
@@ -24,6 +24,7 @@ public interface AlertModelRepository extends CacheableCrudRepository<AlertModel
     List<Long> findAllAlertId();
 
     @QueryHints(value = { @QueryHint(name = org.hibernate.jpa.QueryHints.HINT_CACHEABLE, value = "true") })
-    List<AlertModel> findAllBySourceHistoryId(Long historyId);
+    @Query("SELECT alert FROM #{#entityName} alert WHERE alert.historyId = :historyId")
+    List<AlertModel> findAllBySourceHistoryId(@Param("historyId") Long historyId);
 
 }

@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -77,6 +78,7 @@ public class HistoryModel extends AbstractModel {
 
     // NOTE: Loading big data lazily makes sense when moving to new models, at the
     // moment it has no impact on performance
+    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "REQBODY")
     private byte[] requestBody;
@@ -86,6 +88,7 @@ public class HistoryModel extends AbstractModel {
 
     // NOTE: Loading big data lazily makes sense when moving to new models, at the
     // moment it has no impact on performance
+    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "RESBODY")
     private byte[] responseBody;
