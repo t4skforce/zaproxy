@@ -231,7 +231,6 @@ public class Model {
         return db;
     }
 
-    // TODO disable for non file based sessions
     public void moveSessionDb(String destFile) throws Exception {
 
         // always use copySession because moving file does not work in Debian,
@@ -240,172 +239,99 @@ public class Model {
         copySessionDb(currentDBNameUntitled, destFile);
     }
 
-    // TODO disable for non file based sessions
     protected void copySessionDb(String currentFile, String destFile) throws Exception {
+        if (getDb().isFileDb()) {
 
-        // ZAP: Changed to call the method close(boolean, boolean).
-        getDb().close(false, false);
+            // ZAP: Changed to call the method close(boolean, boolean).
+            getDb().close(false, false);
 
-        // copy session related files to the path specified
-        FileCopier copier = new FileCopier();
+            // copy session related files to the path specified
+            FileCopier copier = new FileCopier();
 
-        // ZAP: Check if files exist.
-        File fileIn1 = new File(currentFile + ".data");
-        if (fileIn1.exists()) {
-            File fileOut1 = new File(destFile + ".data");
-            copier.copy(fileIn1, fileOut1);
+            for (String fileNamePart : getDb().getFiles()) {
+                // ZAP: Check if files exist.
+                File fileIn = new File(currentFile + fileNamePart);
+                if (fileIn.exists()) {
+                    File fileOut = new File(destFile + fileNamePart);
+                    copier.copy(fileIn, fileOut);
+                }
+            }
+
+            getDb().open(destFile);
         }
-
-        File fileIn2 = new File(currentFile + ".script");
-        if (fileIn2.exists()) {
-            File fileOut2 = new File(destFile + ".script");
-            copier.copy(fileIn2, fileOut2);
-        }
-
-        File fileIn3 = new File(currentFile + ".properties");
-        if (fileIn3.exists()) {
-            File fileOut3 = new File(destFile + ".properties");
-            copier.copy(fileIn3, fileOut3);
-        }
-
-        File fileIn4 = new File(currentFile + ".backup");
-        if (fileIn4.exists()) {
-            File fileOut4 = new File(destFile + ".backup");
-            copier.copy(fileIn4, fileOut4);
-        }
-
-        // ZAP: Handle the "lobs" file.
-        File lobsFile = new File(currentFile + ".lobs");
-        if (lobsFile.exists()) {
-            File newLobsFile = new File(destFile + ".lobs");
-            copier.copy(lobsFile, newLobsFile);
-        }
-
-        getDb().open(destFile);
     }
 
-    // TODO disable for non file based sessions
     protected void snapshotSessionDb(String currentFile, String destFile) throws Exception {
-        logger.debug("snapshotSessionDb " + currentFile + " -> " + destFile);
+        if (getDb().isFileDb()) {
+            logger.debug("snapshotSessionDb " + currentFile + " -> " + destFile);
 
-        // ZAP: Changed to call the method close(boolean, boolean).
-        getDb().close(false, false);
+            // ZAP: Changed to call the method close(boolean, boolean).
+            getDb().close(false, false);
 
-        // copy session related files to the path specified
-        FileCopier copier = new FileCopier();
+            // copy session related files to the path specified
+            FileCopier copier = new FileCopier();
 
-        // ZAP: Check if files exist.
-        File fileIn1 = new File(currentFile + ".data");
-        if (fileIn1.exists()) {
-            File fileOut1 = new File(destFile + ".data");
-            copier.copy(fileIn1, fileOut1);
+            for (String fileNamePart : getDb().getFiles()) {
+                // ZAP: Check if files exist.
+                File fileIn = new File(currentFile + fileNamePart);
+                if (fileIn.exists()) {
+                    File fileOut = new File(destFile + fileNamePart);
+                    copier.copy(fileIn, fileOut);
+                }
+            }
+
+            if (currentFile.length() == 0) {
+                logger.debug("snapshotSessionDb using " + currentDBNameUntitled + " -> " + destFile);
+                currentFile = currentDBNameUntitled;
+            }
+
+            getDb().open(currentFile);
         }
-
-        File fileIn2 = new File(currentFile + ".script");
-        if (fileIn2.exists()) {
-            File fileOut2 = new File(destFile + ".script");
-            copier.copy(fileIn2, fileOut2);
-        }
-
-        File fileIn3 = new File(currentFile + ".properties");
-        if (fileIn3.exists()) {
-            File fileOut3 = new File(destFile + ".properties");
-            copier.copy(fileIn3, fileOut3);
-        }
-
-        File fileIn4 = new File(currentFile + ".backup");
-        if (fileIn4.exists()) {
-            File fileOut4 = new File(destFile + ".backup");
-            copier.copy(fileIn4, fileOut4);
-        }
-
-        // ZAP: Handle the "lobs" file.
-        File lobsFile = new File(currentFile + ".lobs");
-        if (lobsFile.exists()) {
-            File newLobsFile = new File(destFile + ".lobs");
-            copier.copy(lobsFile, newLobsFile);
-        }
-
-        if (currentFile.length() == 0) {
-            logger.debug("snapshotSessionDb using " + currentDBNameUntitled + " -> " + destFile);
-            currentFile = currentDBNameUntitled;
-        }
-
-        getDb().open(currentFile);
     }
 
     /** This method should typically only be called from the Control class */
-    // TODO disable for non file based sessions
     public void createAndOpenUntitledDb() throws Exception {
+        if (getDb().isFileDb()) {
+            getDb().close(false, session.isCleanUpRequired());
 
-        getDb().close(false, session.isCleanUpRequired());
-
-        // delete all untitled session db in "session" directory
-        File dir = new File(getSession().getSessionFolder());
-        File[] listFile = dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir1, String fileName) {
-                if (fileName.startsWith("untitled")) {
-                    return true;
+            // delete all untitled session db in "session" directory
+            File dir = new File(getSession().getSessionFolder());
+            File[] listFile = dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir1, String fileName) {
+                    if (fileName.startsWith("untitled")) {
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
+            });
+            for (File element : listFile) {
+                if (!element.delete()) {
+                    // ZAP: Log failure to delete file
+                    logger.error("Failed to delete file " + element.getAbsolutePath());
+                }
             }
-        });
-        for (File element : listFile) {
-            if (!element.delete()) {
-                // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + element.getAbsolutePath());
-            }
-        }
 
-        // ZAP: Check if files exist.
-        // copy and create new template db
-        currentDBNameUntitled = DBNAME_UNTITLED + DBNAME_COPY;
-        File fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".data");
-        if (fileIn.exists()) {
-            File fileOut = new File(currentDBNameUntitled + ".data");
-            if (fileOut.exists() && !fileOut.delete()) {
-                // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + fileOut.getAbsolutePath());
-            }
-        }
+            // ZAP: Check if files exist.
+            // copy and create new template db
+            currentDBNameUntitled = DBNAME_UNTITLED + DBNAME_COPY;
 
-        fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".properties");
-        if (fileIn.exists()) {
-            File fileOut = new File(currentDBNameUntitled + ".properties");
-            if (fileOut.exists() && !fileOut.delete()) {
-                // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + fileOut.getAbsolutePath());
-            }
-        }
+            getDb().getFiles().forEach(fileNamePart -> {
 
-        fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".script");
-        if (fileIn.exists()) {
-            File fileOut = new File(currentDBNameUntitled + ".script");
-            if (fileOut.exists() && !fileOut.delete()) {
-                // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + fileOut.getAbsolutePath());
-            }
-        }
+                File fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + fileNamePart);
+                if (fileIn.exists()) {
+                    File fileOut = new File(currentDBNameUntitled + fileNamePart);
+                    if (fileOut.exists() && !fileOut.delete()) {
+                        // ZAP: Log failure to delete file
+                        logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+                    }
+                }
 
-        fileIn = new File(currentDBNameUntitled + ".backup");
-        if (fileIn.exists()) {
-            if (!fileIn.delete()) {
-                // ZAP: Log failure to delete file
-                logger.error("Failed to delete file " + fileIn.getAbsolutePath());
-            }
-        }
+            });
 
-        // ZAP: Handle the "lobs" file.
-        fileIn = new File(currentDBNameUntitled + ".lobs");
-        if (fileIn.exists()) {
-            if (!fileIn.delete()) {
-                logger.error("Failed to delete file " + fileIn.getAbsolutePath());
-            }
+            getDb().open(currentDBNameUntitled);
+            DBNAME_COPY++;
         }
-
-        getDb().open(currentDBNameUntitled);
-        DBNAME_COPY++;
     }
 
     @Deprecated

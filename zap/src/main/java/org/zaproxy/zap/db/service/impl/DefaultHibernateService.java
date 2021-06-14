@@ -1,7 +1,8 @@
 package org.zaproxy.zap.db.service.impl;
 
+import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -20,11 +21,15 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.zaproxy.zap.ctx.config.CacheConfig;
 import org.zaproxy.zap.db.service.HibernateService;
 import org.zaproxy.zap.db.service.LiquibaseService;
 
 import liquibase.exception.DatabaseException;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Data
@@ -121,8 +126,15 @@ public class DefaultHibernateService implements HibernateService {
     @Value("${hibernate.jdbc.password:}")
     private String jdbcPassword;
 
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
+    private boolean migrationRequired = false;
+
     @Autowired
     private LiquibaseService liquibase;
+
+    @Autowired
+    private CacheConfig cacheConfig;
 
     @Bean
     public DataSource dataSource() {
@@ -156,6 +168,12 @@ public class DefaultHibernateService implements HibernateService {
         properties.setProperty(Environment.HBM2DDL_AUTO, "none");
         factory.setJpaProperties(properties);
 
+        try {
+            liquibase.update();
+        } catch (DatabaseException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
         // This will trigger the creation of the entity manager factory
         factory.afterPropertiesSet();
 
@@ -174,38 +192,31 @@ public class DefaultHibernateService implements HibernateService {
         entityManagerFactory().setJpaProperties(properties());
 
         // Start DataSource
-        startDataSource();
-
-        // Create/Migrate Schema
-        try {
-            liquibase.update();
-        } catch (DatabaseException e) {
-            throw new SQLException(e);
-        }
-        // Start HibernateManagerFactory
-        startEntityManagerFactory();
+        start();
     }
 
     @Override
     public String getType() {
         try {
-            return Arrays.asList(StringUtils.split(jdbcUrl, ":")).get(1).toLowerCase();
-        } catch (IndexOutOfBoundsException e) {
+            return URI.create(StringUtils.removeStartIgnoreCase(jdbcUrl, "jdbc:")).getScheme().toLowerCase();
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
     @Override
     public void start() throws SQLException {
-        startDataSource();
-        startEntityManagerFactory();
-    }
-
-    private void startDataSource() throws SQLException {
         ((BasicDataSource) dataSource()).start();
-    }
 
-    private void startEntityManagerFactory() throws SQLException {
+        // Create/Migrate Schema
+        LOG.info("Migration of DB Schema started.");
+        try {
+            liquibase.update();
+        } catch (DatabaseException e) {
+            throw new SQLException(e);
+        }
+        LOG.info("Migration of DB Schema finished.");
+
         entityManagerFactory().afterPropertiesSet();
     }
 
@@ -259,8 +270,12 @@ public class DefaultHibernateService implements HibernateService {
         config.setProperty(Environment.CACHE_REGION_PREFIX, "zap");
         config.setProperty("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");
         config.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
+        try {
+            config.setProperty("hibernate.javax.cache.uri", cacheConfig.getEhcacheConfig().getURI().toString());
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
 
         return config;
     }
-
 }

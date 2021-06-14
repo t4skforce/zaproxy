@@ -19,6 +19,10 @@ public class CacheConfig {
 
     @Value("classpath:ehcache.xml")
     private Resource ehcacheConfig;
+    
+    public Resource getEhcacheConfig() {
+        return ehcacheConfig;
+    }
 
     @Bean
     public org.springframework.cache.CacheManager cacheManager() throws IOException {

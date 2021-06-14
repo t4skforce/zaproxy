@@ -19,6 +19,9 @@
  */
 package org.parosproxy.paros.db;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This interface was extracted from the previous Paros class of the same name.
  * The Paros class that implements this interface has been moved to the 'paros'
@@ -70,39 +73,6 @@ public interface Database {
      * @param sessionName
      */
     void deleteSession(String sessionName);
-
-    /**
-     *
-     * @param destFile
-     * @throws Exception
-     */
-    default void moveSessionDb(String destFile) throws Exception {
-    }
-
-    /**
-     *
-     * @param currentFile
-     * @param destFile
-     * @throws Exception
-     */
-    default void copySessionDb(String currentFile, String destFile) throws Exception {
-    }
-
-    /**
-     *
-     * @param currentFile
-     * @param destFile
-     * @throws Exception
-     */
-    default void snapshotSessionDb(String currentFile, String destFile) throws Exception {
-    }
-
-    /**
-     *
-     * @throws Exception
-     */
-    default void createAndOpenUntitledDb() throws Exception {
-    }
 
     /**
      * Closes the database. If the parameter {@code compact} is {@code true}, the
@@ -172,4 +142,23 @@ public interface Database {
      * @since 2.5.0
      */
     void discardSession(long sessionId) throws DatabaseException;
+
+    /**
+     * Returns if current DB is file based or not.
+     *
+     * @return boolean
+     */
+    default boolean isFileDb() {
+        return true;
+    }
+
+    /**
+     * Returns a list of filenames required for copying and backing up file based DB
+     * systems. Otherwise returns an empty list.
+     *
+     * @return
+     */
+    default List<String> getFiles() {
+        return Arrays.asList(".data", ".script", ".properties", ".backup", ".lobs");
+    }
 }

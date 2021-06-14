@@ -2,16 +2,20 @@ package org.zaproxy.zap.db.service;
 
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
-import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.AbstractDatabase;
+import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.TableAlert;
@@ -25,6 +29,7 @@ import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DatabaseService extends AbstractDatabase {
 
     private final Logger LOG = LogManager.getLogger(DatabaseService.class);
-
-    private String type = "hsqldb";
 
     @Autowired
     private DatabaseServer databaseServer;
@@ -75,6 +78,8 @@ public class DatabaseService extends AbstractDatabase {
     @Autowired
     private HibernateService hibernate;
 
+    private String type = Database.DB_TYPE_HSQLDB;
+
     @Override
     public DatabaseServer getDatabaseServer() {
         return databaseServer;
@@ -93,12 +98,9 @@ public class DatabaseService extends AbstractDatabase {
     @Override
     public void open(String path) throws ClassNotFoundException, Exception {
         try {
-            // DriverManagerDataSource ds =
-            // dataSource.unwrap(DriverManagerDataSource.class);
-
             setType("hsqldb");
 
-            Map<String, String> params = new HashedMap();
+            Map<String, String> params = new HashMap<>();
             params.put("type", getType());
             params.put("path", Paths.get(path).toAbsolutePath().toString().replaceAll("\\\\", "/"));
             params.put("url", path);
@@ -119,27 +121,14 @@ public class DatabaseService extends AbstractDatabase {
     }
 
     @Override
-    public void moveSessionDb(String destFile) throws Exception {
-        // TODO Auto-generated method stub
-        super.moveSessionDb(destFile);
+    public boolean isFileDb() {
+        return BooleanUtils.isTrue(getProperty("fileBased", Boolean.class, Boolean.TRUE));
     }
 
     @Override
-    public void copySessionDb(String currentFile, String destFile) throws Exception {
-        // TODO Auto-generated method stub
-        super.copySessionDb(currentFile, destFile);
-    }
-
-    @Override
-    public void snapshotSessionDb(String currentFile, String destFile) throws Exception {
-        // TODO Auto-generated method stub
-        super.snapshotSessionDb(currentFile, destFile);
-    }
-
-    @Override
-    public void createAndOpenUntitledDb() throws Exception {
-        // TODO Auto-generated method stub
-        super.createAndOpenUntitledDb();
+    @SuppressWarnings("unchecked")
+    public List<String> getFiles() {
+        return getProperty("fileNames", List.class, Collections.EMPTY_LIST);
     }
 
     @Override
@@ -205,10 +194,10 @@ public class DatabaseService extends AbstractDatabase {
 
     @Override
     public String getType() {
-        return type;
+        return hibernate.getType();
     }
 
-    public void setType(String type) {
+    private void setType(String type) {
         this.type = type;
     }
 
@@ -246,24 +235,22 @@ public class DatabaseService extends AbstractDatabase {
         }
     }
 
-    private String getProperty(String key, Map<String, String> params) {
-        return getProperty(key, "", params);
-    }
-
     private String getProperty(String key, String defaultValue, Map<String, String> params) {
-        return StringSubstitutor.replace(env.getProperty(String.format("db.%s.%s", getType(), key), defaultValue),
-                params, "{", "}");
+        return StringSubstitutor.replace(env.getProperty(String.format("db.%s.%s", type, key), defaultValue), params,
+                "{", "}");
     }
 
     private String getProperty(String key) {
-        return env.getProperty(String.format("db.%s.%s", getType(), key));
+        return env.getProperty(String.format("db.%s.%s", type, key));
     }
 
     private String getProperty(String key, String defaultValue) {
-        return env.getProperty(String.format("db.%s.%s", getType(), key), defaultValue);
+        return env.getProperty(String.format("db.%s.%s", type, key), defaultValue);
     }
 
+    @Nullable
     private <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-        return env.getProperty(String.format("db.%s.%s", getType(), key), targetType, defaultValue);
+        return env.getProperty(String.format("db.%s.%s", type, key), targetType, defaultValue);
     }
+
 }

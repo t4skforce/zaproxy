@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +18,8 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.db.model.base.AbstractModel;
@@ -79,7 +80,7 @@ public class HistoryModel extends AbstractModel {
     // NOTE: Loading big data lazily makes sense when moving to new models, at the
     // moment it has no impact on performance
     @Lob
-    @Basic(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SELECT)
     @Column(name = "REQBODY")
     private byte[] requestBody;
 
@@ -89,7 +90,7 @@ public class HistoryModel extends AbstractModel {
     // NOTE: Loading big data lazily makes sense when moving to new models, at the
     // moment it has no impact on performance
     @Lob
-    @Basic(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SELECT)
     @Column(name = "RESBODY")
     private byte[] responseBody;
 
@@ -115,6 +116,7 @@ public class HistoryModel extends AbstractModel {
      */
     @Deprecated
     public RecordHistory toRecord() throws HttpMalformedHeaderException {
+
         return new RecordHistory(getId().intValue(), getType(), getSessionId().intValue(),
                 getTimeSentMillis().intValue(), getTimeElapsedMillis().intValue(), getRequestHeader(),
                 Optional.ofNullable(getRequestBody()).orElse(new byte[] {}), getResponseHeader(),
