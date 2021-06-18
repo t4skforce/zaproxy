@@ -1,5 +1,6 @@
 package org.zaproxy.zap.db.model;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -12,11 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.parosproxy.paros.db.RecordScan;
-import org.zaproxy.zap.db.model.base.AbstractModel;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,36 +35,40 @@ import lombok.NonNull;
 @Table(name = "SCAN")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "scan")
-public class ScanModel extends AbstractModel {
+public class ScanModel implements Serializable {
 
-    private static final long serialVersionUID = -8545900633149366456L;
+	private static final long serialVersionUID = -8545900633149366456L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "SCANID")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "SCANID")
+	private Long id;
 
-    @NonNull
-    @Column(name = "SESSIONID", nullable = false)
-    private Long sessionId;
+	@NonNull
+	@Column(name = "SESSIONID", nullable = false)
+	private Long sessionId;
 
-    @Column(name = "SCANNAME")
-    private String name;
+	@Column(name = "SCANNAME")
+	private String name;
 
-    @NonNull
-    @Column(name = "SCANTIME", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date time;
+	@NonNull
+	@Column(name = "SCANTIME", nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date time;
 
-    /**
-     * Legacy support for zapproxy models
-     *
-     * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.ScanModel}
-     */
-    @Deprecated
-    public RecordScan toRecord() {
-        return new RecordScan(getId().intValue(), getName(),
-                java.sql.Date.valueOf(getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
-    }
+	@Version
+	@Column(name = "VERSION")
+	private long version;
+
+	/**
+	 * Legacy support for zapproxy models
+	 *
+	 * @deprecated (2.10.1) Replaced by {@link org.zaproxy.zap.db.model.ScanModel}
+	 */
+	@Deprecated
+	public RecordScan toRecord() {
+		return new RecordScan(getId().intValue(), getName(),
+				java.sql.Date.valueOf(getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+	}
 
 }

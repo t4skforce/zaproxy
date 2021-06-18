@@ -14,7 +14,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="HISTORY">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -25,7 +27,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="SESSION">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -36,7 +40,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="ALERT">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -47,7 +53,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="SCAN">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -58,7 +66,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="CONTEXT_DATA">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -80,7 +90,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="SESSION_URL">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     
@@ -102,7 +114,9 @@
 		    </not>
 		</preConditions>
 		<addColumn tableName="STRUCTURE">
-			<column name="VERSION" type="bigint" />
+			<column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/> 
+            </column>
 		</addColumn>
     </changeSet>
     

@@ -39,7 +39,9 @@
             <column name="TAG" type="varchar(32768)" defaultValue="" />
             <column name="NOTE" type="varchar(1048576)" defaultValue="" />
             <column name="RESPONSEFROMTARGETHOST" type="boolean" defaultValueBoolean="false" />
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
 		</createTable>
 		<createIndex indexName="HISTORY_INDEX" tableName="HISTORY">
       		<column name="URI"/>
@@ -74,7 +76,9 @@
             <column name="LASTACCESS" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
 				<constraints nullable="false"/>             
             </column>
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
 		</createTable>
 	</changeSet>
 	
@@ -111,7 +115,9 @@
             <column name="WASCID" type="int" defaultValueNumeric="-1" />
             <column name="SOURCEID" type="int" defaultValueNumeric="0" />
             <column name="ALERTREF" type="varchar(256)" defaultValue="" />
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
         </createTable>
         <createIndex indexName="ALERT_INDEX" tableName="ALERT">
       		<column name="SOURCEHISTORYID"/>
@@ -140,7 +146,9 @@
             <column name="SCANTIME" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
 				<constraints nullable="false"/>             
             </column>
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   	</changeSet>
   	
@@ -163,7 +171,9 @@
             	<constraints  nullable="false"/> 
             </column>
             <column name="DATA" type="varchar(1048576)" defaultValue="" />
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   		<createIndex indexName="INDEX_CONTEXT_DATA_CONTEXTID" tableName="CONTEXT_DATA">
       		<column name="CONTEXTID"/>
@@ -203,7 +213,9 @@
             <column name="VALS" type="varchar(8388608)">
             	<constraints  nullable="false"/> 
             </column>
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   	</changeSet>
   	
@@ -223,7 +235,9 @@
             	<constraints  nullable="false"/> 
             </column>
             <column name="URL" type="varchar(8192)" defaultValue="" />
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   		<createIndex indexName="INDEX_SESSION_URL_TYPE_AND_URL" tableName="SESSION_URL">
       		<column name="TYPE"/>
@@ -247,7 +261,9 @@
             	<constraints  nullable="false"/> 
             </column>
             <column name="TAG" type="varchar(1024)" defaultValue="" />
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   		<createIndex indexName="INDEX_TAG_HISTORYID_TAG" tableName="TAG">
       		<column name="HISTORYID"/>
@@ -288,7 +304,9 @@
             <column name="METHOD" type="varchar(10)">
             	<constraints  nullable="false"/> 
             </column>
-            <column name="VERSION" type="bigint" />
+            <column name="VERSION" type="bigint">
+            	<constraints  nullable="false"/>
+            </column>
   		</createTable>
   		<createIndex indexName="INDEX_STRUCTURE_STRUCTUREID_SESSIONID_PARENTID" tableName="STRUCTURE">
       		<column name="STRUCTUREID"/>
