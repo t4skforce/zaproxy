@@ -27,6 +27,7 @@ public class DefaultStructureDao implements TableStructure, StructureDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordStructure read(long sessionId, long structureId) throws DatabaseException {
         return structureRepository.findFirstByIdAndSessionId(sessionId, structureId)
@@ -35,6 +36,7 @@ public class DefaultStructureDao implements TableStructure, StructureDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordStructure find(long sessionId, String name, String method) throws DatabaseException {
         return structureRepository.findFirstBySessionIdAndNameAndMethod(sessionId, name, method)
@@ -43,6 +45,7 @@ public class DefaultStructureDao implements TableStructure, StructureDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordStructure> getChildren(long sessionId, long parentId) throws DatabaseException {
         return structureRepository.findBySessionIdAndParentId(sessionId, parentId)
@@ -58,6 +61,7 @@ public class DefaultStructureDao implements TableStructure, StructureDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordStructure insert(long sessionId, long parentId, int historyId, String name, String url, String method)
             throws DatabaseException {
@@ -66,6 +70,7 @@ public class DefaultStructureDao implements TableStructure, StructureDao {
                 .parentId(parentId)
                 .historyId((long) historyId)
                 .name(name)
+                .nameHash((long) name.hashCode())
                 .url(url)
                 .method(method)
                 .build()).toRecord();

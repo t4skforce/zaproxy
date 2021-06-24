@@ -86,18 +86,17 @@ dependencies {
     api("org.springframework:spring-orm:5.3.7")
     api("org.springframework:spring-tx:5.3.7")
     api("org.springframework.data:spring-data-jpa:2.5.1")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
     
     
     api("org.hibernate:hibernate-core:5.4.32.Final")
     api("org.apache.commons:commons-dbcp2:2.8.0")
     api("org.hibernate:hibernate-entitymanager:5.4.32.Final")
-    //api("org.hibernate:hibernate-ehcache:5.4.32.Final")
     api("org.hibernate:hibernate-jcache:5.4.32.Final")
     api("org.ehcache:ehcache:3.9.4")
     api("javax.cache:cache-api:1.1.1")
     
     api("org.javassist:javassist:3.28.0-GA")
-    compileOnly("org.projectlombok:lombok:1.18.6")
     api("org.liquibase:liquibase-core:4.3.5")
     api("com.mattbertolini:liquibase-slf4j:4.0.0")
     api("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
@@ -107,9 +106,13 @@ dependencies {
     api("com.h2database:h2:1.4.200")
     api("mysql:mysql-connector-java:8.0.25")
     api("org.mariadb.jdbc:mariadb-java-client:2.7.3")
-        
     
+    // AddOn loading
+    api("org.reflections:reflections:0.9.12")     
     
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.20")
+  	annotationProcessor("org.projectlombok:lombok:1.18.20")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.

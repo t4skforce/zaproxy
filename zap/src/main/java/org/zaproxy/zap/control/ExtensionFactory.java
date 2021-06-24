@@ -31,6 +31,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,17 +69,14 @@ public class ExtensionFactory {
                 dirs[2 + i] = extraDirs.get(i);
             }
             addOnLoader = new AddOnLoader(dirs);
-            List<AddOn> sortedAddOns =
-                    new ArrayList<>(addOnLoader.getAddOnCollection().getInstalledAddOns());
-            Collections.sort(
-                    sortedAddOns,
-                    new Comparator<AddOn>() {
+            List<AddOn> sortedAddOns = new ArrayList<>(addOnLoader.getAddOnCollection().getInstalledAddOns());
+            Collections.sort(sortedAddOns, new Comparator<AddOn>() {
 
-                        @Override
-                        public int compare(AddOn addOn, AddOn otherAddOn) {
-                            return addOn.getId().compareTo(otherAddOn.getId());
-                        }
-                    });
+                @Override
+                public int compare(AddOn addOn, AddOn otherAddOn) {
+                    return addOn.getId().compareTo(otherAddOn.getId());
+                }
+            });
             log.info("Installed add-ons: " + sortedAddOns);
         } else {
             log.error("AddOnLoader initialised without additional directories");
@@ -88,32 +86,26 @@ public class ExtensionFactory {
 
     public static AddOnLoader getAddOnLoader() {
         if (addOnLoader == null) {
-            addOnLoader =
-                    new AddOnLoader(
-                            new File[] {
-                                new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN),
-                                new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN)
-                            });
+            addOnLoader = new AddOnLoader(new File[] { new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN),
+                    new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN) });
             log.info("Installed add-ons: " + addOnLoader.getAddOnCollection().getInstalledAddOns());
         }
         return addOnLoader;
     }
 
-    public static synchronized void loadAllExtension(
-            ExtensionLoader extensionLoader, OptionsParam optionsParam) {
+    public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, OptionsParam optionsParam) {
         log.info("Loading extensions");
+        @SuppressWarnings("deprecation")
         List<Extension> listExts = new ArrayList<>(CoreFunctionality.getBuiltInExtensions());
 
-        listExts.addAll(
-                getAddOnLoader(optionsParam.getCheckForUpdatesParam().getAddonDirectories())
-                        .getExtensions());
+        listExts.addAll(getAddOnLoader(optionsParam.getCheckForUpdatesParam().getAddonDirectories()).getExtensions());
 
         ExtensionParam extParam = optionsParam.getExtensionParam();
         synchronized (mapAllExtension) {
             mapAllExtension.clear();
             mapClassExtension.clear();
-            for (int i = 0; i < listExts.size(); i++) {
-                addExtensionImpl(listExts.get(i), extParam);
+            for (Extension listExt : listExts) {
+                addExtensionImpl(listExt, extParam);
             }
 
             // Add the ordered extensions
@@ -140,16 +132,16 @@ public class ExtensionFactory {
     }
 
     /**
-     * Loads the messages of the {@code extension} and, if enabled, adds it to the {@code
+     * Loads the messages of the {@code extension} and, if enabled, adds it to the
+     * {@code
      * extensionLoader} and loads the extension's help set.
      *
      * @param extensionLoader the extension loader
-     * @param extension the extension
+     * @param extension       the extension
      * @see #loadMessages(Extension)
      * @see ExtensionLoader#addExtension(Extension)
      */
-    private static void loadMessagesAndAddExtension(
-            ExtensionLoader extensionLoader, Extension extension) {
+    private static void loadMessagesAndAddExtension(ExtensionLoader extensionLoader, Extension extension) {
         loadMessages(extension);
         if (!extension.isEnabled()) {
             return;
@@ -163,30 +155,21 @@ public class ExtensionFactory {
                 && (extension.supportsLowMemory() || !Constant.isLowMemoryOptionSet())) {
             extensionLoader.addExtension(extension);
         } else if (!extension.supportsDb(Model.getSingleton().getDb().getType())) {
-            log.debug(
-                    "Not loading extension "
-                            + extension.getName()
-                            + ": doesn't support "
-                            + Model.getSingleton().getDb().getType());
+            log.debug("Not loading extension " + extension.getName() + ": doesn't support "
+                    + Model.getSingleton().getDb().getType());
             extension.setEnabled(false);
         } else if (extension.supportsLowMemory() || !Constant.isLowMemoryOptionSet()) {
-            log.debug(
-                    "Not loading extension "
-                            + extension.getName()
-                            + ": doesn't support low memory option");
+            log.debug("Not loading extension " + extension.getName() + ": doesn't support low memory option");
             extension.setEnabled(false);
         }
     }
 
     // Relax visibility to ease the tests.
-    static boolean canBeLoaded(
-            Map<Class<? extends Extension>, Extension> extensions, Extension extension) {
+    static boolean canBeLoaded(Map<Class<? extends Extension>, Extension> extensions, Extension extension) {
         return canBeLoaded(extensions, extension, new ArrayList<>());
     }
 
-    private static boolean canBeLoaded(
-            Map<Class<? extends Extension>, Extension> extensions,
-            Extension extension,
+    private static boolean canBeLoaded(Map<Class<? extends Extension>, Extension> extensions, Extension extension,
             List<Extension> extsBeingProcessed) {
         if (extsBeingProcessed.contains(extension)) {
             log.error("Dependency loop with \"" + extension + "\" and " + extsBeingProcessed);
@@ -222,19 +205,12 @@ public class ExtensionFactory {
         return true;
     }
 
-    private static void logUnableToLoadExt(
-            Extension extension, String reason, Class<? extends Extension> dependency) {
-        log.warn(
-                "Unable to load \""
-                        + extension
-                        + "\", "
-                        + reason
-                        + ": "
-                        + dependency.getCanonicalName());
+    private static void logUnableToLoadExt(Extension extension, String reason, Class<? extends Extension> dependency) {
+        log.warn("Unable to load \"" + extension + "\", " + reason + ": " + dependency.getCanonicalName());
     }
 
-    public static synchronized void addAddOnExtension(
-            ExtensionLoader extensionLoader, Configuration config, Extension extension) {
+    public static synchronized void addAddOnExtension(ExtensionLoader extensionLoader, Configuration config,
+            Extension extension) {
         synchronized (mapAllExtension) {
             addExtensionImpl(extension, Model.getSingleton().getOptionsParam().getExtensionParam());
 
@@ -250,24 +226,13 @@ public class ExtensionFactory {
             if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
                 // Same name, same class so ignore
                 log.error(
-                        "Duplicate extension: "
-                                + extension.getName()
-                                + " "
-                                + extension.getClass().getCanonicalName());
+                        "Duplicate extension: " + extension.getName() + " " + extension.getClass().getCanonicalName());
                 extension.setEnabled(false);
                 return;
             }
             // Same name but different class, log but still load it
-            log.error(
-                    "Duplicate extension name: "
-                            + extension.getName()
-                            + " "
-                            + extension.getClass().getCanonicalName()
-                            + " "
-                            + mapAllExtension
-                                    .get(extension.getName())
-                                    .getClass()
-                                    .getCanonicalName());
+            log.error("Duplicate extension name: " + extension.getName() + " " + extension.getClass().getCanonicalName()
+                    + " " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
         }
         if (extension.isDepreciated()) {
             log.debug("Depreciated extension " + extension.getName());
@@ -284,26 +249,18 @@ public class ExtensionFactory {
         if (order == 0) {
             unorderedExtensions.add(extension);
         } else if (mapOrderToExtension.containsKey(order)) {
-            log.error(
-                    "Duplicate order "
-                            + order
-                            + " "
-                            + mapOrderToExtension.get(order).getName()
-                            + "/"
-                            + mapOrderToExtension.get(order).getClass().getCanonicalName()
-                            + " already registered, "
-                            + extension.getName()
-                            + "/"
-                            + extension.getClass().getCanonicalName()
-                            + " will be added as an unordered extension");
+            log.error("Duplicate order " + order + " " + mapOrderToExtension.get(order).getName() + "/"
+                    + mapOrderToExtension.get(order).getClass().getCanonicalName() + " already registered, "
+                    + extension.getName() + "/" + extension.getClass().getCanonicalName()
+                    + " will be added as an unordered extension");
             unorderedExtensions.add(extension);
         } else {
             mapOrderToExtension.put(order, extension);
         }
     }
 
-    public static synchronized List<Extension> loadAddOnExtensions(
-            ExtensionLoader extensionLoader, Configuration config, AddOn addOn) {
+    public static synchronized List<Extension> loadAddOnExtensions(ExtensionLoader extensionLoader,
+            Configuration config, AddOn addOn) {
         List<Extension> listExts = getAddOnLoader().getExtensions(addOn);
 
         synchronized (mapAllExtension) {
@@ -363,8 +320,7 @@ public class ExtensionFactory {
 
     private static ResourceBundle getPropertiesResourceBundle(String name, ClassLoader classLoader)
             throws MissingResourceException {
-        return ResourceBundle.getBundle(
-                name, Constant.getLocale(), classLoader, new ZapResourceBundleControl());
+        return ResourceBundle.getBundle(name, Constant.getLocale(), classLoader, new ZapResourceBundleControl());
     }
 
     public static List<Extension> getAllExtensions() {
@@ -383,7 +339,7 @@ public class ExtensionFactory {
             mapClassExtension.remove(extension.getClass());
             listAllExtension.remove(extension);
             boolean isUnordered = true;
-            for (Iterator<Extension> it = mapOrderToExtension.values().iterator(); it.hasNext(); ) {
+            for (Iterator<Extension> it = mapOrderToExtension.values().iterator(); it.hasNext();) {
                 if (it.next() == extension) {
                     it.remove();
                     isUnordered = false;

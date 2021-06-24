@@ -36,21 +36,26 @@ package org.parosproxy.paros.extension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
- * The object to add/hook menus and menu items to the {@link
- * org.parosproxy.paros.view.MainFrame#getMainMenuBar() main menu bar} and to the {@link
- * View#getPopupMenu() main context menu}.
+ * The object to add/hook menus and menu items to the
+ * {@link org.parosproxy.paros.view.MainFrame#getMainMenuBar() main menu bar}
+ * and to the {@link View#getPopupMenu() main context menu}.
  *
- * <p>The menus added through the hook are removed when the extension is unloaded.
+ * <p>
+ * The menus added through the hook are removed when the extension is unloaded.
  *
- * <p><strong>Note:</strong> This class is not thread-safe, the menus should be added only through
- * the thread that {@link Extension#hook(ExtensionHook) hooks the extension}.
+ * <p>
+ * <strong>Note:</strong> This class is not thread-safe, the menus should be
+ * added only through the thread that {@link Extension#hook(ExtensionHook) hooks
+ * the extension}.
  *
  * @since 1.0.0
  * @see View#getMainFrame()
@@ -63,7 +68,8 @@ public class ExtensionHookMenu {
     /**
      * The new menus for the main menu bar added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addNewMenu(JMenu)
      * @see #getNewMenus()
@@ -73,7 +79,8 @@ public class ExtensionHookMenu {
     /**
      * The file menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addFileMenuItemImpl(JMenuItem)
      * @see #getFile()
@@ -83,7 +90,8 @@ public class ExtensionHookMenu {
     /**
      * The edit menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addEditMenuItemImpl(JMenuItem)
      * @see #getEdit()
@@ -93,7 +101,8 @@ public class ExtensionHookMenu {
     /**
      * The view menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addViewMenuItemImpl(JMenuItem)
      * @see #getView()
@@ -103,7 +112,8 @@ public class ExtensionHookMenu {
     /**
      * The analyse menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addAnalyseMenuItemImpl(JMenuItem)
      * @see #getAnalyse()
@@ -113,7 +123,8 @@ public class ExtensionHookMenu {
     /**
      * The tools menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addToolsMenuItemImpl(JMenuItem)
      * @see #getTools()
@@ -123,7 +134,8 @@ public class ExtensionHookMenu {
     /**
      * The import menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addImportMenuItem(ZapMenuItem)
      * @see #getImport()
@@ -134,7 +146,8 @@ public class ExtensionHookMenu {
     /**
      * The menus for the main context menu added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addPopupMenuImpl(JMenuItem)
      * @see #getPopupMenus()
@@ -144,7 +157,8 @@ public class ExtensionHookMenu {
     /**
      * The help menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addHelpMenuItemImpl(JMenuItem)
      * @see #getHelpMenus()
@@ -154,7 +168,8 @@ public class ExtensionHookMenu {
     /**
      * The report menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addReportMenuItemImpl(JMenuItem)
      * @see #getReportMenus()
@@ -164,7 +179,8 @@ public class ExtensionHookMenu {
     /**
      * The online menus added to this extension hook.
      *
-     * <p>Lazily initialised.
+     * <p>
+     * Lazily initialised.
      *
      * @see #addOnlineMenuItem(ZapMenuItem)
      * @see #getOnlineMenus()
@@ -185,31 +201,31 @@ public class ExtensionHookMenu {
         }
     }
 
-    List<JMenuItem> getNewMenus() {
+    public List<JMenuItem> getNewMenus() {
         return unmodifiableList(newMenuList);
     }
 
-    List<JMenuItem> getFile() {
+    public List<JMenuItem> getFile() {
         return unmodifiableList(fileMenuItemList);
     }
 
-    List<JMenuItem> getEdit() {
+    public List<JMenuItem> getEdit() {
         return unmodifiableList(editMenuItemList);
     }
 
-    List<JMenuItem> getView() {
+    public List<JMenuItem> getView() {
         return unmodifiableList(viewMenuItemList);
     }
 
-    List<JMenuItem> getAnalyse() {
+    public List<JMenuItem> getAnalyse() {
         return unmodifiableList(analyseMenuItemList);
     }
 
-    List<JMenuItem> getTools() {
+    public List<JMenuItem> getTools() {
         return unmodifiableList(toolsMenuItemList);
     }
 
-    List<JMenuItem> getImport() {
+    public List<JMenuItem> getImport() {
         return unmodifiableList(importMenuItemList);
     }
 
@@ -218,19 +234,19 @@ public class ExtensionHookMenu {
      *
      * @return a {@code List} containing the popup menu items of the extension
      */
-    List<JMenuItem> getPopupMenus() {
+    public List<JMenuItem> getPopupMenus() {
         return unmodifiableList(popupMenuList);
     }
 
-    List<JMenuItem> getHelpMenus() {
+    public List<JMenuItem> getHelpMenus() {
         return unmodifiableList(helpMenuList);
     }
 
-    List<JMenuItem> getReportMenus() {
+    public List<JMenuItem> getReportMenus() {
         return unmodifiableList(reportMenuList);
     }
 
-    List<JMenuItem> getOnlineMenus() {
+    public List<JMenuItem> getOnlineMenus() {
         return unmodifiableList(onlineMenuList);
     }
 
@@ -424,8 +440,8 @@ public class ExtensionHookMenu {
     }
 
     /**
-     * Add a popup menu item used for the whole workbench. Conditions can be set in PluginMenu when
-     * the popup menu can be used.
+     * Add a popup menu item used for the whole workbench. Conditions can be set in
+     * PluginMenu when the popup menu can be used.
      *
      * @param menuItem the popup menu item
      */
@@ -541,7 +557,8 @@ public class ExtensionHookMenu {
     /**
      * Creates an {@link ArrayList} with initial capacity of 1.
      *
-     * <p>Most of the extensions just add one menu.
+     * <p>
+     * Most of the extensions just add one menu.
      *
      * @return the {@code ArrayList}.
      */

@@ -28,6 +28,7 @@ public class DefaultSessionUrlDao implements TableSessionUrl, SessionUrlDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordSessionUrl read(long urlId) throws DatabaseException {
         return sessionUrlRepository.findById(urlId)
@@ -36,6 +37,7 @@ public class DefaultSessionUrlDao implements TableSessionUrl, SessionUrlDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordSessionUrl insert(int type, String url) throws DatabaseException {
         return sessionUrlRepository.save(SessionUrlModel.builder().type(type).url(url).build()).toRecord();
@@ -54,6 +56,7 @@ public class DefaultSessionUrlDao implements TableSessionUrl, SessionUrlDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordSessionUrl> getUrlsForType(int type) throws DatabaseException {
         return sessionUrlRepository.findAllByType(type)

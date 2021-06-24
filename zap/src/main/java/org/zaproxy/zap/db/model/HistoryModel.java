@@ -31,7 +31,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -116,7 +116,6 @@ public class HistoryModel extends AbstractModel {
      */
     @Deprecated
     public RecordHistory toRecord() throws HttpMalformedHeaderException {
-
         return new RecordHistory(getId().intValue(), getType(), getSessionId().intValue(),
                 getTimeSentMillis().intValue(), getTimeElapsedMillis().intValue(), getRequestHeader(),
                 Optional.ofNullable(getRequestBody()).orElse(new byte[] {}), getResponseHeader(),

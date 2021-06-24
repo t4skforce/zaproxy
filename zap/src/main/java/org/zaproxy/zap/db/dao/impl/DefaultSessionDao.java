@@ -44,6 +44,7 @@ public class DefaultSessionDao implements TableSession, SessionDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordSession> listSessions() throws DatabaseException {
         return IterableUtils.toList(sessionRepository.findAll())

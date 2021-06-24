@@ -24,12 +24,14 @@ public class DefaultScanDao implements TableScan, ScanDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordScan getLatestScan() throws DatabaseException {
         return scanRepository.findTopByOrderByIdDesc().map(entity -> entity.toRecord()).orElseGet(null);
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordScan read(int scanId) throws DatabaseException {
         return scanRepository.findById((long) scanId)
@@ -38,6 +40,7 @@ public class DefaultScanDao implements TableScan, ScanDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordScan insert(long sessionId, String scanName) throws DatabaseException {
         ScanModel entity = ScanModel.builder().sessionId(sessionId).name(scanName).build();

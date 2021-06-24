@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.hibernate5.HibernateExceptionTranslator;
@@ -135,6 +136,9 @@ public class DefaultHibernateService implements HibernateService {
 
     @Autowired
     private CacheConfig cacheConfig;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Bean
     public DataSource dataSource() {
@@ -278,4 +282,5 @@ public class DefaultHibernateService implements HibernateService {
 
         return config;
     }
+
 }

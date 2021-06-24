@@ -28,7 +28,7 @@ allprojects {
 
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "utf-8"
-        options.compilerArgs = listOf("-Xlint:all", "-Xlint:-options", "-Werror", "-parameters")
+        options.compilerArgs = listOf("-Xlint:all", "-Xlint:-options", "-Xlint:-processing", "-Werror", "-parameters")
     }
 }
 

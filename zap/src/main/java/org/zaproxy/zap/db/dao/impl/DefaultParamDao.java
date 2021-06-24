@@ -28,6 +28,7 @@ public class DefaultParamDao implements TableParam, ParamDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordParam read(long urlId) throws DatabaseException {
         return paramRepository.findById(urlId)
@@ -36,6 +37,7 @@ public class DefaultParamDao implements TableParam, ParamDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordParam> getAll() throws DatabaseException {
         return IterableUtils.toList(paramRepository.findAll())
@@ -45,6 +47,7 @@ public class DefaultParamDao implements TableParam, ParamDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordParam insert(String site, String type, String name, int used, String flags, String values)
             throws DatabaseException {

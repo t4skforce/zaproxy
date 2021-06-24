@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zaproxy.zap.db.dao.HistoryDao;
 import org.zaproxy.zap.db.model.HistoryModel;
-import org.zaproxy.zap.db.model.HistoryModel.HistoryModelBuilder;
 import org.zaproxy.zap.db.repository.HistoryModelRepository;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
@@ -40,18 +39,18 @@ public class DefaultHistoryDao implements TableHistory, HistoryDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordHistory read(int historyId) throws HttpMalformedHeaderException, DatabaseException {
-        return historyRepository.findById((long) historyId)
-                .orElseThrow(() -> new DatabaseException("History entry with id" + historyId + " not found!"))
-                .toRecord();
+        return historyRepository.findById((long) historyId).orElse(null).toRecord();
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordHistory write(long sessionId, int histType, HttpMessage msg)
             throws HttpMalformedHeaderException, DatabaseException {
-        HistoryModelBuilder builder = HistoryModel.builder();
+        HistoryModel.HistoryModelBuilder builder = HistoryModel.builder();
 
         HttpRequestHeader reqHeader = msg.getRequestHeader();
         if (!reqHeader.isEmpty()) {
@@ -210,6 +209,7 @@ public class DefaultHistoryDao implements TableHistory, HistoryDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg)
             throws DatabaseException, HttpMalformedHeaderException {

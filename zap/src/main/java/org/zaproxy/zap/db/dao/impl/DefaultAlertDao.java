@@ -32,6 +32,7 @@ public class DefaultAlertDao implements TableAlert, AlertDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordAlert read(int alertId) throws DatabaseException {
         return alertRepository.findById((long) alertId)
@@ -40,6 +41,7 @@ public class DefaultAlertDao implements TableAlert, AlertDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordAlert write(int scanId, int pluginId, String alert, int risk, int confidence, String description,
             String uri, String param, String attack, String otherInfo, String solution, String reference,
@@ -126,6 +128,7 @@ public class DefaultAlertDao implements TableAlert, AlertDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException {
         return alertRepository.findAllBySourceHistoryId((long) historyId)

@@ -29,6 +29,7 @@ public class DefaultContextDao implements TableContext, ContextDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordContext read(long dataId) throws DatabaseException {
         return contextDataRepository.findById(dataId)
@@ -37,6 +38,7 @@ public class DefaultContextDao implements TableContext, ContextDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordContext insert(int contextId, int type, String url) throws DatabaseException {
         return contextDataRepository
@@ -63,6 +65,7 @@ public class DefaultContextDao implements TableContext, ContextDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getAllData() throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAll())
@@ -72,6 +75,7 @@ public class DefaultContextDao implements TableContext, ContextDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getDataForContext(int contextId) throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAllByContextId((long) contextId))
@@ -81,6 +85,7 @@ public class DefaultContextDao implements TableContext, ContextDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordContext> getDataForContextAndType(int contextId, int type) throws DatabaseException {
         return IterableUtils.toList(contextDataRepository.findAllByContextIdAndType((long) contextId, type))

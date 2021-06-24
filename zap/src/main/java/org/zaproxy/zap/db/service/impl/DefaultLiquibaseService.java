@@ -27,7 +27,7 @@ public class DefaultLiquibaseService implements LiquibaseService {
     public synchronized void update(@NonNull String context, @NonNull String changeLogFile) throws DatabaseException {
         try (java.sql.Connection conn = dataSource.getConnection()) {
             Database database = DatabaseFactory.getInstance()
-                    .findCorrectDatabaseImplementation(new JdbcConnection(dataSource.getConnection()));
+                    .findCorrectDatabaseImplementation(new JdbcConnection(conn));
             try (Liquibase liquibase = new Liquibase(changeLogFile, new ClassLoaderResourceAccessor(), database)) {
                 liquibase.update(context);
             }

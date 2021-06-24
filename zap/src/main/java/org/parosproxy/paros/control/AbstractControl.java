@@ -25,6 +25,7 @@
 package org.parosproxy.paros.control;
 
 import org.parosproxy.paros.extension.ExtensionLoader;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
@@ -62,10 +63,11 @@ public abstract class AbstractControl {
     protected abstract void addExtension();
 
     /**
-     * Add plugin common to all control here. This is added before all other control specific
-     * plugin.
+     * Add plugin common to all control here. This is added before all other control
+     * specific plugin.
      */
-    protected void addCommonExtension() {}
+    protected void addCommonExtension() {
+    }
 
     public void shutdown(boolean compact) {
         getExtensionLoader().stopAllExtension();

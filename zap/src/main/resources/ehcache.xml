@@ -19,8 +19,6 @@
 			<heap unit="entries">100000</heap>
 			<offheap unit="MB">10</offheap>
 		</resources>
-		<jsr107:mbeans enable-statistics="true"
-			enable-management="true" />
 	</cache-template>
 
 </config>

@@ -91,8 +91,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -106,15 +108,13 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.ctx.ZapContext;
 
 /** Overall control with interaction on model and view. */
 public class Control extends AbstractControl implements SessionListener {
 
     public enum Mode {
-        safe,
-        protect,
-        standard,
-        attack
+        safe, protect, standard, attack
     }
 
     private static Logger log = LogManager.getLogger(Control.class);
@@ -183,6 +183,7 @@ public class Control extends AbstractControl implements SessionListener {
 
     @Override
     protected void addExtension() {
+        ZapContext.getBean(org.zaproxy.zap.extension.factory.ExtensionFactory.class).loadAll();
         ExtensionFactory.loadAllExtension(getExtensionLoader(), model.getOptionsParam());
     }
 
@@ -230,26 +231,15 @@ public class Control extends AbstractControl implements SessionListener {
         boolean isNewState = model.getSession().isNewState();
         int rootCount = 0;
         if (!Constant.isLowMemoryOptionSet()) {
-            rootCount =
-                    model.getSession()
-                            .getSiteTree()
-                            .getChildCount(model.getSession().getSiteTree().getRoot());
+            rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
         }
-        boolean askOnExit =
-                hasView()
-                        && Model.getSingleton()
-                                        .getOptionsParam()
-                                        .getViewParam()
-                                        .getAskOnExitOption()
-                                > 0;
+        boolean askOnExit = hasView() && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
         boolean sessionUnsaved = isNewState && rootCount > 0;
 
         if (!noPrompt) {
             List<String> list = getExtensionLoader().getUnsavedResources();
             if (sessionUnsaved && askOnExit) {
-                list.add(
-                        0,
-                        Constant.messages.getString("menu.file.exit.message.sessionResNotSaved"));
+                list.add(0, Constant.messages.getString("menu.file.exit.message.sessionResNotSaved"));
             }
 
             String message = null;
@@ -258,20 +248,13 @@ public class Control extends AbstractControl implements SessionListener {
                 String unsavedResources = wrapEntriesInLiTags(list);
 
                 if (activeActions.isEmpty()) {
-                    message =
-                            Constant.messages.getString(
-                                    "menu.file.exit.message.resourcesNotSaved", unsavedResources);
+                    message = Constant.messages.getString("menu.file.exit.message.resourcesNotSaved", unsavedResources);
                 } else {
-                    message =
-                            Constant.messages.getString(
-                                    "menu.file.exit.message.resourcesNotSavedAndActiveActions",
-                                    unsavedResources,
-                                    activeActions);
+                    message = Constant.messages.getString("menu.file.exit.message.resourcesNotSavedAndActiveActions",
+                            unsavedResources, activeActions);
                 }
             } else if (!activeActions.isEmpty()) {
-                message =
-                        Constant.messages.getString(
-                                "menu.file.exit.message.activeActions", activeActions);
+                message = Constant.messages.getString("menu.file.exit.message.activeActions", activeActions);
             }
 
             if (message != null && view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
@@ -283,46 +266,33 @@ public class Control extends AbstractControl implements SessionListener {
             control.discardSession();
         }
 
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                // ZAP: Changed to use the option compact database.
-                                try {
-                                    control.shutdown(
-                                            Model.getSingleton()
-                                                    .getOptionsParam()
-                                                    .getDatabaseParam()
-                                                    .isCompactDatabase());
-                                    log.info(Constant.PROGRAM_TITLE + " terminated.");
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // ZAP: Changed to use the option compact database.
+                try {
+                    control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+                    log.info(Constant.PROGRAM_TITLE + " terminated.");
 
-                                    if (openOnExit != null && Desktop.isDesktopSupported()) {
-                                        try {
-                                            log.info(
-                                                    "Openning file "
-                                                            + openOnExit.getAbsolutePath());
-                                            Desktop.getDesktop().open(openOnExit);
-                                        } catch (IOException e) {
-                                            log.error(
-                                                    "Failed to open file "
-                                                            + openOnExit.getAbsolutePath(),
-                                                    e);
-                                        }
-                                    }
-                                } catch (Throwable e) {
-                                    log.error("An error occurred while shutting down:", e);
-                                } finally {
-                                    System.exit(0);
-                                }
-                            }
-                        },
-                        "ZAP-Shutdown");
+                    if (openOnExit != null && Desktop.isDesktopSupported()) {
+                        try {
+                            log.info("Openning file " + openOnExit.getAbsolutePath());
+                            Desktop.getDesktop().open(openOnExit);
+                        } catch (IOException e) {
+                            log.error("Failed to open file " + openOnExit.getAbsolutePath(), e);
+                        }
+                    }
+                } catch (Throwable e) {
+                    log.error("An error occurred while shutting down:", e);
+                } finally {
+                    System.exit(0);
+                }
+            }
+        }, "ZAP-Shutdown");
 
         if (hasView()) {
-            WaitMessageDialog dialog =
-                    view.getWaitMessageDialog(
-                            Constant.messages.getString("menu.file.shuttingDown")); // ZAP: i18n
+            WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown")); // ZAP:
+                                                                                                                         // i18n
             t.start();
             dialog.setVisible(true);
         } else {
@@ -385,9 +355,10 @@ public class Control extends AbstractControl implements SessionListener {
     /**
      * Initialises the {@code Control} singleton with the given data.
      *
-     * <p><strong>Note:</strong> Not part of the public API.
+     * <p>
+     * <strong>Note:</strong> Not part of the public API.
      *
-     * @param model the {@code Model} to test with.
+     * @param model           the {@code Model} to test with.
      * @param extensionLoader the {@code ExtensionLoader} to test with.
      */
     public static void initSingletonForTesting(Model model, ExtensionLoader extensionLoader) {
@@ -409,17 +380,16 @@ public class Control extends AbstractControl implements SessionListener {
         model.saveSession(fileName);
 
         if (hasView()) {
-            SwingUtilities.invokeLater(
-                    new Runnable() {
+            SwingUtilities.invokeLater(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+                @Override
+                public void run() {
+                    view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 
-                            // refresh display
-                            view.getOutputPanel().clear();
-                        }
-                    });
+                    // refresh display
+                    view.getOutputPanel().clear();
+                }
+            });
         }
 
         log.info("New session file created: " + Paths.get(fileName).toRealPath());
@@ -428,15 +398,14 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     /**
-     * Creates a new session and resets session related data in other components (e.g. proxy
-     * excluded URLs).
+     * Creates a new session and resets session related data in other components
+     * (e.g. proxy excluded URLs).
      *
      * @return the newly created session.
      */
     private Session createNewSession() {
         Session session = model.newSession();
-        getProxy()
-                .setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
+        getProxy().setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
         return session;
     }
 
@@ -479,23 +448,20 @@ public class Control extends AbstractControl implements SessionListener {
         getExtensionLoader().sessionChangedAllPlugin(session);
 
         if (hasView()) {
-            SwingUtilities.invokeLater(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
-                            view.getSiteTreePanel().reloadContextTree();
-                        }
-                    });
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+                    view.getSiteTreePanel().reloadContextTree();
+                }
+            });
 
             // refresh display
             view.getOutputPanel().clear();
         }
 
         try {
-            model.getDb()
-                    .getTableSession()
-                    .insert(session.getSessionId(), session.getSessionName());
+            model.getDb().getTableSession().insert(session.getSessionId(), session.getSessionName());
         } catch (DatabaseException e) {
             log.error(e.getMessage(), e);
         }
@@ -506,7 +472,8 @@ public class Control extends AbstractControl implements SessionListener {
     /**
      * Closes the old session and creates and opens an untitled database.
      *
-     * @throws Exception if an error occurred while creating or opening the database.
+     * @throws Exception if an error occurred while creating or opening the
+     *                   database.
      */
     private void closeSessionAndCreateAndOpenUntitledDb() throws Exception {
         getExtensionLoader().sessionAboutToChangeAllPlugin(null);
@@ -545,7 +512,8 @@ public class Control extends AbstractControl implements SessionListener {
     /**
      * Persists the properties (e.g. name, description) of the current session.
      *
-     * <p>Should be called only by "core" classes.
+     * <p>
+     * Should be called only by "core" classes.
      *
      * @throws Exception if an error occurred while persisting the properties.
      * @since 2.7.0
@@ -570,9 +538,9 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     /**
-     * @deprecated (2.5.0) Use just {@link #newSession()} (or {@link #newSession(String,
-     *     SessionListener)}) instead, which already takes care to create and open an untitled
-     *     database.
+     * @deprecated (2.5.0) Use just {@link #newSession()} (or
+     *             {@link #newSession(String, SessionListener)}) instead, which
+     *             already takes care to create and open an untitled database.
      */
     @Deprecated
     @SuppressWarnings("javadoc")
@@ -596,10 +564,11 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     /**
-     * Notifies the extensions that the session changed, if the given exception is {@code null}.
+     * Notifies the extensions that the session changed, if the given exception is
+     * {@code null}.
      *
-     * @param exception the exception that happened when changing the session, or {@code null} if
-     *     none.
+     * @param exception the exception that happened when changing the session, or
+     *                  {@code null} if none.
      */
     private void notifyExtensionsSessionChanged(Exception exception) {
         if (exception == null) {

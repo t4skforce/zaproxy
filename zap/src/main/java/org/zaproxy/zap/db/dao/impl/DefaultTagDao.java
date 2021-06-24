@@ -32,6 +32,7 @@ public class DefaultTagDao implements TableTag, TagDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public RecordTag read(long tagId) throws DatabaseException {
         return tagRepository.findById(tagId)
@@ -40,6 +41,7 @@ public class DefaultTagDao implements TableTag, TagDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class })
     public RecordTag insert(long historyId, String tag) throws DatabaseException {
         return tagRepository
@@ -60,6 +62,7 @@ public class DefaultTagDao implements TableTag, TagDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = { DatabaseException.class }, readOnly = true)
     public List<RecordTag> getTagsForHistoryID(long historyId) throws DatabaseException {
         return tagRepository.findAllByHistoryId(historyId)

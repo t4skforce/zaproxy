@@ -19,7 +19,7 @@ public class CacheConfig {
 
     @Value("classpath:ehcache.xml")
     private Resource ehcacheConfig;
-    
+
     public Resource getEhcacheConfig() {
         return ehcacheConfig;
     }
@@ -31,7 +31,6 @@ public class CacheConfig {
         return cacheManager;
     }
 
-    // TODO: exposing cache stats via JMX is not working at the moment
     @Bean(destroyMethod = "close")
     public CacheManager jCacheManager() throws IOException {
         CachingProvider provider = Caching.getCachingProvider();
